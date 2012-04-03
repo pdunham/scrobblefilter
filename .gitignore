@@ -1,0 +1,16 @@
+gwt-unitCache/
+.settings/
+.project
+.gwt/
+test-classes
+war/scrobblefilter
+war/scrobblerfilter
+war/WEB-INF/deploy/
+war/WEB-INF/classes/
+
+# OS generated files #
+######################
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
