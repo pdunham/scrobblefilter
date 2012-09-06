@@ -1,6 +1,6 @@
 gwt-unitCache/
 .settings/
-.project
+#.project
 .gwt/
 test-classes
 war/scrobblefilter

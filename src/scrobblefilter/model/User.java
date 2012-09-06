@@ -9,7 +9,8 @@ import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 
 public class User implements Serializable {
-	 @Id
+	private static final long serialVersionUID = 6744250575418616689L;
+	@Id
 	 private String twitterName;	
 	 private String token;
 	 private String tokenSecret;
