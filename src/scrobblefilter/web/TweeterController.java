@@ -8,7 +8,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -19,7 +18,6 @@ import scrobblefilter.model.User;
 import scrobblefilter.net.ScrobbleListFetcher;
 import scrobblefilter.net.ScrobbleListParser;
 import twitter4j.Twitter;
-import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 

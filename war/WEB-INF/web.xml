@@ -6,7 +6,7 @@
          xmlns="http://java.sun.com/xml/ns/javaee">
 
   <!-- Servlets -->
-  <servlet>
+ <!--  <servlet>
     <servlet-name>greetServlet</servlet-name>
     <servlet-class>scrobblefilter.server.GreetingServiceImpl</servlet-class>
   </servlet>
@@ -15,7 +15,7 @@
     <servlet-name>greetServlet</servlet-name>
     <url-pattern>/scrobblefilter/greet</url-pattern>
   </servlet-mapping>
-  
+  --> 
   <!-- Default page to serve -->
   <welcome-file-list>
     <welcome-file>ScrobbleFilter.html</welcome-file>

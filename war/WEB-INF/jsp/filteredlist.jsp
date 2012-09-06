@@ -25,9 +25,19 @@ Hello, <%=prefs.getTwitterName()%>!
 	<div class=error>The tweet failed: <%=model.get("error")%></div>
 <% } %>
 <table>
-<tr><th>name</th><th>play count</th></tr>
+<tr><th>name</th><th>play count</th><th></th></tr>
 <% for (ScrobbledArtist artist : topArtists) { %>
-<tr><td><%=artist.getName()%></td><td><%=artist.getPlayCount()%></td></tr>
+	<tr>
+		<td><%=artist.getName()%></td><td><%=artist.getPlayCount()%></td>
+		<td>
+			<form method=post action=addartist>
+				<input type=hidden name=twitterName value="<%=prefs.getTwitterName()%>"/>
+				<input type=hidden name=artist value="<%=artist.getName() %>"/>
+				<input type=submit value="filter this artist"/>
+
+			</form>
+		</td>
+	</tr>
 <% } %>
 </table>
 <a href="tweet?name=<%=prefs.getTwitterName()%>">tweet it</a>

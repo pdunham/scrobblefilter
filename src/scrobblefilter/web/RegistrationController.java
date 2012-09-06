@@ -83,7 +83,7 @@ public class RegistrationController {
 		return new ModelAndView("helloworld", "model", model);
 	}
 	
-	@RequestMapping(value="addartist", method=POST)
+	@RequestMapping(value="addartist", method={POST,GET})
 	public ModelAndView addArtistToFilter(HttpServletRequest request, HttpServletResponse response, Preferences prefs, BindingResult result, Map<String, Object> model)
 	{
 		User user = findUser(prefs.getTwitterName());

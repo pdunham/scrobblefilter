@@ -23,8 +23,7 @@ public class NetworkedScrobbleListFetcher implements ScrobbleListFetcher {
 			URL url = new URL(constructUrl(userName));
 			BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
 	        String line;
-	        int i = 0;
-	            while ((line = reader.readLine()) != null) {
+	        while ((line = reader.readLine()) != null) {
 	                jsonList = jsonList + line;
 	            }
 	            reader.close();
