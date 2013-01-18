@@ -37,6 +37,16 @@
            <servlet-name>scrobblefilter</servlet-name>
            <url-pattern>/hello/*</url-pattern>
          </servlet-mapping>
+         
+         
   
+  <security-constraint>
+        <web-resource-collection>
+            <url-pattern>/hello/cron/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
 
 </web-app>
