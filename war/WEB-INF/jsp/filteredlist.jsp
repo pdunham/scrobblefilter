@@ -21,6 +21,8 @@ color: #D8000C;
 <body>
 Hello, <%=prefs.getTwitterName()%>!
 <br>
+<a href="world">go back</a>
+<br>
 <% if (model!=null && model.get("error")!=null) { %>
 	<div class=error>The tweet failed: <%=model.get("error")%></div>
 <% } %>
@@ -28,13 +30,17 @@ Hello, <%=prefs.getTwitterName()%>!
 <tr><th>name</th><th>play count</th><th></th></tr>
 <% for (ScrobbledArtist artist : topArtists) { %>
 	<tr>
-		<td><%=artist.getName()%></td><td><%=artist.getPlayCount()%></td>
+		<td>
+			<%=artist.getName()%>
+		</td>
+		<td>
+			<%=artist.getPlayCount()%>
+		</td>
 		<td>
 			<form method=post action=addartist>
 				<input type=hidden name=twitterName value="<%=prefs.getTwitterName()%>"/>
 				<input type=hidden name=artist value="<%=artist.getName() %>"/>
 				<input type=submit value="filter this artist"/>
-
 			</form>
 		</td>
 	</tr>
