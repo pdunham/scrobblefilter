@@ -33,6 +33,7 @@ public class ScrobbleListParser {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		//TODO: handle empty json
 		JsonNode topartistNode = rootNode.get("topartists");
 		JsonNode artistArray = topartistNode.get("artist");
 		Iterator<JsonNode> artistNodes = artistArray.getElements();
