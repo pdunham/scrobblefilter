@@ -7,7 +7,11 @@ war/scrobblefilter
 war/scrobblerfilter
 war/WEB-INF/deploy/
 war/WEB-INF/classes/
-war/WEB-INF/lib/appengine*
+war/WEB-INF/lib/*appengine*
+war/WEB-INF/lib/*datanucleus*
+war/WEB-INF/lib/*jdo*
+war/WEB-INF/lib/*geronimo*
+war/WEB-INF/appengine-generated/local_db.bin
 
 # OS generated files #
 ######################
