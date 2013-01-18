@@ -15,6 +15,34 @@ public class User implements Serializable {
 	 private String token;
 	 private String tokenSecret;
 	 private String lastfmName;
+	 private String preface;
+	 
+	 public String getPreface() {
+		return preface;
+	}
+
+	public void setPreface(String preface) {
+		this.preface = preface;
+	}
+
+	public boolean isUseNumbers() {
+		return useNumbers;
+	}
+
+	public void setUseNumbers(boolean useNumbers) {
+		this.useNumbers = useNumbers;
+	}
+
+	public boolean isRandom() {
+		return isRandom;
+	}
+
+	public void setRandom(boolean isRandom) {
+		this.isRandom = isRandom;
+	}
+
+	private boolean useNumbers;
+	 private boolean isRandom;
 	
 	 public String getLastfmName() {
 		return lastfmName;
