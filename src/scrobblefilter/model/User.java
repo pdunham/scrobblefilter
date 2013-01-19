@@ -16,8 +16,20 @@ public class User implements Serializable {
 	 private String tokenSecret;
 	 private String lastfmName;
 	 private String preface;
+	 private boolean useNumbers;
+	 private boolean isRandom;
+	 private boolean cron;
+	 private String prefixText;
 	 
-	 public String getPreface() {
+	 public boolean isCron() {
+		return cron;
+	}
+
+	public void setCron(boolean cron) {
+		this.cron = cron;
+	}
+
+	public String getPreface() {
 		return preface;
 	}
 
@@ -40,9 +52,6 @@ public class User implements Serializable {
 	public void setRandom(boolean isRandom) {
 		this.isRandom = isRandom;
 	}
-
-	private boolean useNumbers;
-	 private boolean isRandom;
 	
 	 public String getLastfmName() {
 		return lastfmName;
