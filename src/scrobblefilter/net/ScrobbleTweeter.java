@@ -25,6 +25,13 @@ public class ScrobbleTweeter {
 		twitter.updateStatus(text);
 	}
 	
+	/**
+	 * The whole point of this app boils down to this method.
+	 * 
+	 * @param lastfmName
+	 * @param filteredArtists
+	 * @return a List of ScrobbledArtists, scrubbed of the filtered artists.
+	 */
 	public List<ScrobbledArtist> extractFilteredList(String lastfmName,
 			List<String> filteredArtists) {
 		if (lastfmName==null) log.warning("in extractFilteredList lastfmname is null");
@@ -37,10 +44,12 @@ public class ScrobbleTweeter {
 	}
 	
 	public String constructTweet(List<ScrobbledArtist> scrobbles) {
-		String result = "The past week I've listened to";
+		String result = "I've been listened to";
 		for (int i = 0; i < 3; i++) {
 			ScrobbledArtist scrobble = scrobbles.get(i);
-			result = result + " " + scrobble.getName() + " (" + scrobble.getPlayCount() + ")";
+			result = result +  ( i==2?" and ":" ") + scrobble.getName() 
+					/*+ " (" + scrobble.getPlayCount() + ")"*/
+					+  ( i==2?".":",");
 		}
 		return result;
 	}
