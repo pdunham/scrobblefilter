@@ -1,5 +1,6 @@
 gwt-unitCache/
 .settings/
+.classpath
 #.project
 .gwt/
 test-classes
@@ -11,7 +12,7 @@ war/WEB-INF/lib/*appengine*
 war/WEB-INF/lib/*datanucleus*
 war/WEB-INF/lib/*jdo*
 war/WEB-INF/lib/*geronimo*
-war/WEB-INF/appengine-generated/local_db.bin
+war/WEB-INF/appengine-generated/*
 
 # OS generated files #
 ######################
