@@ -6,16 +6,6 @@
          xmlns="http://java.sun.com/xml/ns/javaee">
 
   <!-- Servlets -->
- <!--  <servlet>
-    <servlet-name>greetServlet</servlet-name>
-    <servlet-class>scrobblefilter.server.GreetingServiceImpl</servlet-class>
-  </servlet>
-  
-  <servlet-mapping>
-    <servlet-name>greetServlet</servlet-name>
-    <url-pattern>/scrobblefilter/greet</url-pattern>
-  </servlet-mapping>
-  --> 
   <!-- Default page to serve -->
   <welcome-file-list>
     <welcome-file>ScrobbleFilter.html</welcome-file>
@@ -38,7 +28,12 @@
            <url-pattern>/hello/*</url-pattern>
          </servlet-mapping>
          
-         
+ <security-role>  
+    <role-name>admin</role-name>  
+</security-role>  
+<security-role>  
+    <role-name>user</role-name>  
+</security-role>          
   
   <security-constraint>
         <web-resource-collection>
