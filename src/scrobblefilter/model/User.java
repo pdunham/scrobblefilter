@@ -21,7 +21,15 @@ public class User implements Serializable {
 	 private boolean cron;
 	 private String prefixText;
 	 
-	 public boolean isCron() {
+	 public String getPrefixText() {
+		return prefixText;
+	}
+
+	public void setPrefixText(String prefixText) {
+		this.prefixText = prefixText;
+	}
+
+	public boolean isCron() {
 		return cron;
 	}
 
