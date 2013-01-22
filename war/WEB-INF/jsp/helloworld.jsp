@@ -46,6 +46,11 @@ you have linked your twitter account
 </table>
 <input type=submit>
 </form>
+<form method=post action=updateCronSetting>
+<P><input type="checkbox" <%= user.isCron()?"checked":"" %> disabled/> use cron job 
+<input type=hidden name=twitterName value="<%= user.getTwitterName() %>"/>
+<input type=submit name=cron value=<%= !user.isCron() %>>
+</form>
 <table>
 <%
 List<FilteredArtist> artists = user.listAllFilteredArtists() ;

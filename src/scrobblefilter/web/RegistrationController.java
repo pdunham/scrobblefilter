@@ -44,6 +44,19 @@ public class RegistrationController {
 		
 	}
 
+	@RequestMapping(value="updateCronSetting", method=POST)
+	public ModelAndView updateCronSetting(HttpServletRequest request, HttpServletResponse response, User user, BindingResult result, Map<String, Object> model)
+	{
+		User foundUser = findOrCreateUser(user);
+		foundUser.setCron(user.isCron());
+		foundUser.save();
+		request.getSession().setAttribute("user", foundUser);
+		model.put("user", foundUser);
+		return new ModelAndView("helloworld", "model", model);
+		
+	}
+
+	
 	protected static User findOrCreateUser(User user) {
 		User maybeUser = null;
 		try {
