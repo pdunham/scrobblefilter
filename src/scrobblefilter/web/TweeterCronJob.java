@@ -34,6 +34,7 @@ public class TweeterCronJob {
 		for (User u : users) {
 			try {
 				tweeter.doTweet(u);
+				log.info("sent tweet for "+u.getName());
 			} catch (TwitterException e) {
 				log.warning(e.getErrorMessage());
 			}
