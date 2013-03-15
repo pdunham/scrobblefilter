@@ -10,6 +10,7 @@ List<ScrobbledArtist> topArtists = (List<ScrobbledArtist>)model.get("list");
 %>
 <html>
 <head>
+<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css">
 <title>Hello, <%=prefs.getTwitterName()%></title>
 <style>
 .error {
@@ -19,6 +20,7 @@ color: #D8000C;
 </head>
 
 <body>
+<div id=main>
 Hello, <%=prefs.getTwitterName()%>!
 <br>
 <a href="world">go back</a>
@@ -48,4 +50,5 @@ Hello, <%=prefs.getTwitterName()%>!
 </table>
 <a href="tweet?name=<%=prefs.getTwitterName()%>">tweet it</a>
 </body>
+</div> <!-- main -->
 </html>

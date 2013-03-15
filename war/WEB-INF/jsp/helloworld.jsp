@@ -6,6 +6,7 @@
 <%@page import="java.util.List"%>
 <html>
 <head>
+<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css">
 <title>Hello, World</title>
 </head>
 
@@ -25,6 +26,7 @@ if (model != null) {
 %>
 
 <body>
+<div id=main>
 Hello<%= user==null?"":", "+user.getTwitterName()%>
 <% if (user.getToken()==null) { %>
 <P>You have not linked your twitter account.  <a href="twittersignin?name=<%=user.getName()%>">do it</a>
@@ -65,5 +67,6 @@ for (FilteredArtist artist : artists) {
 <% if (user.getLastfmName()!=null) { %>
 <a href="filter?name=<%=user.getName()%>">see the filtered list</a>
 <% } %>
+</div> <!-- main -->
 </body>
 </html>
