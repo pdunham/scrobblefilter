@@ -8,7 +8,7 @@
 <body>
 Hello
 
-<form method=post action=register>
+<form method=post action=/hello/register>
 <table>
 <tr><td>Twitter handle</td><td><input type=text name=name></td></tr>
 </table>
