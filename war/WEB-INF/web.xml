@@ -7,10 +7,9 @@
 
   <!-- Servlets -->
   <!-- Default page to serve -->
-  <welcome-file-list>
-    <welcome-file>ScrobbleFilter.html</welcome-file>
+<welcome-file-list>
+    <welcome-file>hello/welcome</welcome-file>
   </welcome-file-list>
-  
   <listener>
   		  	<listener-class>scrobblefilter.web.ContextInitializer</listener-class>
   </listener>
@@ -25,7 +24,7 @@
 
          <servlet-mapping>
            <servlet-name>scrobblefilter</servlet-name>
-           <url-pattern>/hello/*</url-pattern>
+          <url-pattern>/hello/*</url-pattern>
          </servlet-mapping>
          
  <security-role>  
