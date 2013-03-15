@@ -54,7 +54,7 @@ public class TwitterSignInController {
 	}
 	
 	@RequestMapping(value="callback", method=GET)
-	public ModelAndView twitterSignIngCallback(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+	public ModelAndView twitterSignInCallback(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 
 		Twitter twitter = (Twitter) request.getSession().getAttribute("twitter");
 		User user = (User)request.getSession().getAttribute("user");

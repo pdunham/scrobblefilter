@@ -24,7 +24,7 @@
 	</bean>
 	
 	<bean id="scrobbleListFetcher" class="scrobblefilter.net.impl.NetworkedScrobbleListFetcher"/>
-	<bean id="userFetcher" class="scrobblefilter.das.impl.UserFetcherDefaultImpl"/>
+	<bean id="userFetcher" class="scrobblefilter.das.impl.CronUserFetcher"/>
 	
 </beans>
 	
