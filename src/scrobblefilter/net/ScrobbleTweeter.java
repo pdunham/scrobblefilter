@@ -44,7 +44,7 @@ public class ScrobbleTweeter {
 	}
 	
 	public String constructTweet(List<ScrobbledArtist> scrobbles) {
-		String result = "I've been listened to";
+		String result = "I've been listening to";
 		for (int i = 0; i < 3; i++) {
 			ScrobbledArtist scrobble = scrobbles.get(i);
 			result = result +  ( i==2?" and ":" ") + scrobble.getName() 

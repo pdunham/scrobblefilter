@@ -10,7 +10,6 @@ public class UserFetcherDefaultImpl implements UserFetcher {
 
 	@Override
 	public List<User> fetchUsersForCronJob() {
-		// TODO Auto-generated method stub
 		List<User> result = new ArrayList<User>();
 		User user = User.findByName("pervprogrammer");
 		if (user==null) return null;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
   <cron>
-    <url>/cron/sendalltweets</url>
+    <url>/hello/cron/sendalltweets</url>
     <description>send out tweets</description>
     <schedule>every tuesday 10:00</schedule>
     <timezone>America/Chicago</timezone>
