@@ -43,4 +43,15 @@
         </auth-constraint>
     </security-constraint>
 
+	<filter>
+	     <filter-name>LoginFilter</filter-name>
+	     <filter-class>scrobblefilter.web.LoginFilter</filter-class>
+	     <description>This Filter makes sure users are logged in.</description>
+	</filter>
+
+	<filter-mapping>
+	     <filter-name>LoginFilter</filter-name>
+	     <url-pattern>/hello/*</url-pattern>
+	</filter-mapping>
+
 </web-app>
