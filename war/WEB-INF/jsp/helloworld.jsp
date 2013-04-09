@@ -4,6 +4,7 @@
 <%@page import="scrobblefilter.model.FilteredArtist"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.List"%>
+<%@taglib prefix="tag" tagdir="/WEB-INF/tags" %>
 <html>
 <head>
 <link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css">
@@ -35,15 +36,15 @@ you have linked your twitter account
 <% } %>
 <table>
 <% if (user.getLastfmName()==null) { %>
-<form method=post action=updateLastfmName>
-<input type=hidden name=twitterName value="<%=user.getTwitterName()%>"/>
-<tr><td>last.fm user name</td><td><input type=text name=lastfmName></td></tr>
+	<form method=post action=updateLastfmName>
+	<input type=hidden name=twitterName value="<%=user.getTwitterName()%>"/>
+	<tr><td>last.fm user name</td><td><input type=text name=lastfmName></td></tr>
 <% } else { %>
-<P>Your lastfm name is <%=user.getLastfmName()%>
-<form method=post action=addartist>
-<input type=hidden name=twitterName value="<%=user.getTwitterName()%>"/>
-<input type=hidden name=lastfmName value="<%=user.getLastfmName()%>"/>
-<tr><td>add an artist to filter</td><td><input type=text name=artist></td></tr>
+	<P>Your lastfm name is <%=user.getLastfmName()%>
+	<form method=post action=addartist>
+	<input type=hidden name=twitterName value="<%=user.getTwitterName()%>"/>
+	<input type=hidden name=lastfmName value="<%=user.getLastfmName()%>"/>
+	<tr><td>add an artist to filter</td><td><input type=text name=artist></td></tr>
 <% } %>
 </table>
 <input type=submit>
