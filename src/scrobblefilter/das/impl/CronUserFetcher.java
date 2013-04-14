@@ -8,8 +8,6 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.Filter;
-import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.DatastoreService;
 
 import scrobblefilter.das.UserFetcher;
@@ -23,9 +21,8 @@ public class CronUserFetcher implements UserFetcher {
 	public List<User> fetchUsersForCronJob() {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-		Filter isCronFilter = new FilterPredicate("cron", Query.FilterOperator.EQUAL, true);
 		Query cronQuery = new Query("User");
-		cronQuery.setFilter(isCronFilter);
+		cronQuery.addFilter("cron", Query.FilterOperator.EQUAL, true);
 		cronQuery.setKeysOnly();
 		PreparedQuery pq = datastore.prepare(cronQuery);
 		List<User> users = new ArrayList<User>();
