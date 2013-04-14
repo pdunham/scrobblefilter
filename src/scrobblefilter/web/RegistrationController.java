@@ -29,9 +29,11 @@ public class RegistrationController {
 
 
 	@RequestMapping(value="welcome", method = GET)
-	public ModelAndView helloWorld(HttpServletRequest request, HttpServletResponse response) 
+	public ModelAndView helloWorld(HttpServletRequest request, HttpServletResponse response, Map<String, Object> model) 
 	{
-		return new ModelAndView("newuser");
+		if (request.getSession().getAttribute("user")==null)
+			return new ModelAndView("newuser");
+		return new ModelAndView("helloworld");
 	}
 	
 	@RequestMapping(value="register", method=POST)
