@@ -25,16 +25,17 @@ public class TwitterSignInController {
 
 	private static final Logger log = Logger.getLogger(TwitterSignInController.class.getName());
 	
-	@RequestMapping(value="twittersignin", method=GET)
+	@RequestMapping(value="twittersignin")
 	public void twitterSignIn(HttpServletRequest request, HttpServletResponse response, User user) throws IOException, ServletException {
 		if (request.getSession().getAttribute("user")==null) {
 			log.warning("no user in session - trying to look one up");
-			user = RegistrationController.findUser(user.getTwitterName());
-			if (user==null) {
+			User foundUser = RegistrationController.findUser(user.getTwitterName());
+			if (foundUser==null) {
 				log.warning("there is no user in the session for twitter signin");
 			} else {
-				request.getSession().setAttribute("user", user);
+				user = foundUser;
 			}
+			request.getSession().setAttribute("user", user);
 		}
 		Twitter twitter = new TwitterFactory().getInstance();
         request.getSession().setAttribute("twitter", twitter);

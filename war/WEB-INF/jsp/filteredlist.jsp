@@ -2,6 +2,7 @@
 <%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@page import="java.util.Map,scrobblefilter.model.Preferences"%>
 <%@page import="java.util.List,scrobblefilter.model.ScrobbledArtist"%>
+<%@taglib prefix="tag" tagdir="/WEB-INF/tags" %>
 <%
 Map<String, Object> model = (Map<String, Object>)request.getAttribute("model");
 Preferences prefs = model==null?null:(Preferences)model.get("prefs");
