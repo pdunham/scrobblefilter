@@ -43,4 +43,16 @@
         </auth-constraint>
     </security-constraint>
 
+<!--Servlet Filter that handles site authorization.-->
+<filter>
+     <filter-name>AuthorizationFilter</filter-name>
+     <filter-class>scrobblefilter.web.LoginFilter</filter-class>
+     <description>This Filter authorizes user access to application
+                  components based upon request URI.</description>
+</filter>
+
+<filter-mapping>
+     <filter-name>AuthorizationFilter</filter-name>
+     <url-pattern>/*</url-pattern>
+</filter-mapping>
 </web-app>
