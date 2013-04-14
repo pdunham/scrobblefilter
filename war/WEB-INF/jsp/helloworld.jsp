@@ -66,7 +66,7 @@ for (FilteredArtist artist : artists) {
 <% } %>
 </table>
 <% if (user.getLastfmName()!=null) { %>
-<a href="filter?name=<%=user.getName()%>">see the filtered list</a>
+<a href="/hello/filter?name=<%=user.getName()%>">see the filtered list</a>
 <% } %>
 </div> <!-- main -->
 </body>
