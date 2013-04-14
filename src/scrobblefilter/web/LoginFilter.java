@@ -1,28 +1,30 @@
 package scrobblefilter.web;
 
 import java.io.IOException;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import scrobblefilter.model.User;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 public class LoginFilter implements Filter {
 
-	public void init(FilterConfig config) {}
-	
-	public void destroy() {}
-	
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
-		throws ServletException, IOException
-	{
-		System.out.println("doFilter invoked");
-/*		HttpSession session =
-		          ((HttpServletRequest)req).getSession(false);
-		      User currentUser = (User)session.getAttribute("user");
-	*/
-		chain.doFilter(req, res);
+	@Override
+	public void destroy() {
+		//nothing to do
+	}
+
+	@Override
+	public void doFilter(ServletRequest req, ServletResponse res,
+			FilterChain chain) throws IOException, ServletException {
+			System.out.println("filter invoked");
+			chain.doFilter(req, res);
+	}
+
+	@Override
+	public void init(FilterConfig arg0) throws ServletException {
+		// nothing to do
 	}
 
 }
