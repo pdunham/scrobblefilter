@@ -1,26 +1,30 @@
 package scrobblefilter.model;
 
-import javax.persistence.Id;
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 
+import static com.googlecode.objectify.ObjectifyService.ofy;
+
+@Entity
 public class User implements Serializable {
-	private static final long serialVersionUID = 6744250575418616689L;
-	@Id
-	 private String twitterName;	
+
+	@Id 
+	 String twitterName;	
 	 private String token;
 	 private String tokenSecret;
 	 private String lastfmName;
 	 private String preface;
 	 private boolean useNumbers;
-	 private boolean isRandom;
-	 private boolean cron;
+	 @Index private boolean isRandom;
+	 @Index private boolean cron;
 	 private String prefixText;
-	 
+	 private static final long serialVersionUID = 6744250575418616690L;
+			 
 	 public String getPrefixText() {
 		return prefixText;
 	}
@@ -112,24 +116,18 @@ public class User implements Serializable {
 		this.twitterName = name;
 	}
 	
-	private static Objectify getService() {
-	  return ObjectifyService.begin();
-	 }
 
 	 public static User findByName(String name){
-		 Objectify service = getService();
-		 return service.get(User.class, name);
+		 return ofy().load().type(User.class).id(name).now();
 	 }
  
 	public void save(){
-		 Objectify service = getService();
-		 service.put(this);
+		ofy().save().entity(this).now();
 	}
 
 	public void addFilteredArtist(FilteredArtist artist) {
 		artist.setOwner(this);
-		Objectify service = getService();
-		service.put(artist);
+		ofy().save().entity(artist).now();
 	}
 	
 	public void addRetweets(List<FilteredArtist> artists){
@@ -137,8 +135,7 @@ public class User implements Serializable {
 		  artist.setOwner(this);
 		 }
 
-		 Objectify service = getService();
-		 service.put(artists);
+		 ofy().save().entities(artists);
 	}
 	
 	public List<String> getFilteredArtistAsStrings() {
@@ -150,7 +147,6 @@ public class User implements Serializable {
 	}
 	
 	public List<FilteredArtist> listAllFilteredArtists(){
-		 Objectify service = getService();
-		 return service.query(FilteredArtist.class).filter("owner", this).list();
+		return ofy().load().type(FilteredArtist.class).filter("owner", this.twitterName).list();		
 	}
 }

@@ -3,7 +3,7 @@
   <cron>
     <url>/hello/cron/sendalltweets</url>
     <description>send out tweets</description>
-    <schedule>every sunday, tuesday 10:00</schedule>
+    <schedule>every tuesday 10:00</schedule>
     <timezone>America/Chicago</timezone>
   </cron>
 </cronentries>

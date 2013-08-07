@@ -8,7 +8,6 @@ import scrobblefilter.model.User;
 
 public class UserFetcherDefaultImpl implements UserFetcher {
 
-	@Override
 	public List<User> fetchUsersForCronJob() {
 		List<User> result = new ArrayList<User>();
 		User user = User.findByName("pervprogrammer");

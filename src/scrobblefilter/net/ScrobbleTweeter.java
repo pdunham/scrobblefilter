@@ -20,6 +20,7 @@ public class ScrobbleTweeter {
 	public void doTweet(User user) throws TwitterException {
 		List<ScrobbledArtist> scrobbles = extractFilteredList(user.getLastfmName(), user.getFilteredArtistAsStrings());
 		String text = constructTweet(scrobbles);	        
+		if (user.getToken()==null || user.getTokenSecret() == null) throw new TwitterException("token or secret null");
 		AccessToken token = new AccessToken(user.getToken(), user.getTokenSecret());
 		Twitter twitter = new TwitterFactory().getInstance(token);
 		twitter.updateStatus(text);

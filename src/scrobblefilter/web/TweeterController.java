@@ -1,6 +1,7 @@
 package scrobblefilter.web;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,8 @@ import scrobblefilter.net.ScrobbleTweeter;
 
 @Controller
 public class TweeterController {
+
+	private static final Logger log = Logger.getLogger(TweeterController.class.getName());
 
 	ScrobbleTweeter tweeter = new ScrobbleTweeter();
 
@@ -32,7 +35,8 @@ public class TweeterController {
         try {
 	        tweeter.doTweet(user);
         } catch (Exception e) {
-        	request.getSession().setAttribute("error", e);
+        	request.getSession().setAttribute("error", e.getMessage());
+        	log.warning(e.getMessage());
         }
         response.sendRedirect("filter");
         

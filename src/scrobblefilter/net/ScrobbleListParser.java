@@ -34,16 +34,18 @@ public class ScrobbleListParser {
 			e.printStackTrace();
 		}
 		//TODO: handle empty json
+		if (rootNode==null) return artists;
 		JsonNode topartistNode = rootNode.get("topartists");
 		JsonNode artistArray = topartistNode.get("artist");
-		Iterator<JsonNode> artistNodes = artistArray.getElements();
-		while (artistNodes.hasNext()) {
-			
-			JsonNode artistNode = artistNodes.next();
-			artists.add(new ScrobbledArtist(artistNode.get("name").asText(), artistNode.get("playcount").asInt()));
-			
+		if (artistArray!=null) {
+			Iterator<JsonNode> artistNodes = artistArray.getElements();
+			while (artistNodes.hasNext()) {
+				
+				JsonNode artistNode = artistNodes.next();
+				artists.add(new ScrobbledArtist(artistNode.get("name").asText(), artistNode.get("playcount").asInt()));
+				
+			}
 		}
-
 		
 		return artists;
 		

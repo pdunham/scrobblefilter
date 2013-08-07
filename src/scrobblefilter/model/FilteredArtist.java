@@ -1,8 +1,11 @@
 package scrobblefilter.model;
 
-import javax.persistence.Id;
-import com.googlecode.objectify.Key;
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
 
+
+@Entity
 public class FilteredArtist {
 
 	@Id
@@ -11,7 +14,7 @@ public class FilteredArtist {
 	String lastfmName;
 	String artistName;
 	
-	private Key<User> owner;
+	@Index String owner;
 	
 	public FilteredArtist() {
 		super();
@@ -57,16 +60,12 @@ public class FilteredArtist {
 		this.artistName = artistName;
 	}
 	
+	public User getOwner() {
+		return User.findByName(owner);
+	}
+
 	public void setOwner(User owner) {
-		this.owner = new Key<User>(User.class, owner.getName());
-	}
-
-	public Key<User> getOwner() {
-		return owner;
-	}
-
-	public void setOwner(Key<User> owner) {
-		this.owner = owner;
+		this.owner = owner.twitterName;
 	}
 	
 }
