@@ -2,6 +2,7 @@ package scrobblefilter.web;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.googlecode.objectify.NotFoundException;
-import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 
 import scrobblefilter.model.FilteredArtist;
 import scrobblefilter.model.Preferences;
@@ -101,7 +100,7 @@ public class RegistrationController {
 	{
 		User user = findUser(prefs.getTwitterName());
 		if (user==null) return new ModelAndView("newuser");
-		FilteredArtist artist = new FilteredArtist(prefs.getTwitterName(), prefs.getLastfmName(),prefs.getArtist());
+		FilteredArtist artist = new FilteredArtist(user.getTwitterName(), user.getLastfmName(),prefs.getArtist());
 		user.addFilteredArtist(artist);
 		model.put("user",user);
 		return new ModelAndView("helloworld", "model", model);
@@ -111,8 +110,7 @@ public class RegistrationController {
 	public ModelAndView removeArtistFromFilter(HttpServletRequest request, HttpServletResponse response, FilteredArtist artist, BindingResult result, Map<String, Object> model)
 	{
 		User user = findUser(artist.getTwitterName());
-		Objectify ofy = ObjectifyService.begin();
-		ofy.delete(artist);
+		ofy().delete().entity(artist);
 		model.put("user",user);
 		return new ModelAndView("helloworld", "model", model);
 	}

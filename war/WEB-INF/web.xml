@@ -14,6 +14,14 @@
   		  	<listener-class>scrobblefilter.web.ContextInitializer</listener-class>
   </listener>
   
+	<filter>
+        <filter-name>ObjectifyFilter</filter-name>
+        <filter-class>com.googlecode.objectify.ObjectifyFilter</filter-class>
+	</filter>
+	<filter-mapping>
+	        <filter-name>ObjectifyFilter</filter-name>
+	        <url-pattern>/*</url-pattern>
+	</filter-mapping>
   
   	<!--  spring servlet -->
 		<servlet>
@@ -34,6 +42,7 @@
     <role-name>user</role-name>  
 </security-role>          
   
+<!-- 
   <security-constraint>
         <web-resource-collection>
             <url-pattern>/hello/cron/*</url-pattern>
@@ -42,5 +51,5 @@
             <role-name>admin</role-name>
         </auth-constraint>
     </security-constraint>
-
+ -->
 </web-app>
