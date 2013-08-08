@@ -13,7 +13,7 @@ public class NetworkedScrobbleListFetcher implements ScrobbleListFetcher {
 	private static final String LAST_FM_API_KEY = "c0c210a13a2d568ed460f60479b79092";
 	private static final String BASE_URL = "http://ws.audioscrobbler.com/2.0/?";
 	private static final String METHOD_PARM = "method=user.gettopartists";
-	private static final String PERIOD_PARM = "period=70day";
+	private static final String PERIOD_PARM = "period=7day";
 	private static final String FORMAT_PARM = "format=json";
 	
 	public String fetchList(String userName) {
