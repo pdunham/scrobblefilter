@@ -42,7 +42,6 @@
     <role-name>user</role-name>  
 </security-role>          
   
-<!-- 
   <security-constraint>
         <web-resource-collection>
             <url-pattern>/hello/cron/*</url-pattern>
@@ -51,5 +50,4 @@
             <role-name>admin</role-name>
         </auth-constraint>
     </security-constraint>
- -->
 </web-app>
