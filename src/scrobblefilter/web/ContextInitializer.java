@@ -1,7 +1,7 @@
 package scrobblefilter.web;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 import com.googlecode.objectify.ObjectifyService;
 
 import scrobblefilter.model.FilteredArtist;
