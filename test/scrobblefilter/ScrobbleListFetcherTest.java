@@ -17,7 +17,7 @@ import scrobblefilter.net.impl.NetworkedScrobbleListFetcher;
 
 public class ScrobbleListFetcherTest {
 
-//	@Test
+	@Test
 	public void test() throws JsonParseException, JsonMappingException, IOException {
 		
 		ScrobbleListFetcher fetcher = new FakeScrobbleListFetcher();

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>scrobblefilter</groupId>
+    <artifactId>scrobblefilter</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <lib.dir>${project.basedir}/war/WEB-INF/lib</lib.dir>
+        <spring.version>6.1.14</spring.version>
+    </properties>
+
+    <dependencies>
+        <!-- Jakarta Servlet API (provided by the servlet container) -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Spring 6 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <!-- JUnit for test runner -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Jackson (already in lib/) -->
+        <dependency>
+            <groupId>jackson-all</groupId>
+            <artifactId>jackson-all</artifactId>
+            <version>1.9.5</version>
+            <scope>system</scope>
+            <systemPath>${lib.dir}/jackson-all-1.9.5.jar</systemPath>
+        </dependency>
+
+        <!-- Guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>14.0.1</version>
+            <scope>system</scope>
+            <systemPath>${lib.dir}/guava-14.0.1.jar</systemPath>
+        </dependency>
+
+        <!-- Objectify -->
+        <dependency>
+            <groupId>objectify</groupId>
+            <artifactId>objectify</artifactId>
+            <version>4.0rc1</version>
+            <scope>system</scope>
+            <systemPath>${lib.dir}/objectify-4.0rc1.jar</systemPath>
+        </dependency>
+
+        <!-- Twitter4J -->
+        <dependency>
+            <groupId>twitter4j</groupId>
+            <artifactId>twitter4j-core</artifactId>
+            <version>3.0.3</version>
+            <scope>system</scope>
+            <systemPath>${lib.dir}/twitter4j-core-3.0.3.jar</systemPath>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
+        <plugins>
+            <!-- Copy Spring 6 JARs into war/WEB-INF/lib/ for legacy GAE deployment -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-deps</id>
+                        <phase>prepare-package</phase>
+                        <goals><goal>copy-dependencies</goal></goals>
+                        <configuration>
+                            <outputDirectory>${lib.dir}</outputDirectory>
+                            <excludeScope>provided</excludeScope>
+                            <excludeScope>test</excludeScope>
+                            <excludeGroupIds>jackson-all,com.google.guava,objectify,twitter4j</excludeGroupIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

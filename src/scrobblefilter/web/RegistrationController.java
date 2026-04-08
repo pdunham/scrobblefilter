@@ -7,8 +7,8 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
