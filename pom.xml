@@ -70,7 +70,12 @@
             <systemPath>${lib.dir}/jackson-all-1.9.5.jar</systemPath>
         </dependency>
 
-        <!-- JSTL (Tomcat does not bundle it; JstlView requires it) -->
+        <!-- JSTL API + implementation (Tomcat does not bundle either) -->
+        <dependency>
+            <groupId>jakarta.servlet.jsp.jstl</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+            <version>3.0.0</version>
+        </dependency>
         <dependency>
             <groupId>org.glassfish.web</groupId>
             <artifactId>jakarta.servlet.jsp.jstl</artifactId>
