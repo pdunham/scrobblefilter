@@ -2,13 +2,9 @@
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Cache dependency downloads separately from source changes
 COPY pom.xml .
 COPY war/WEB-INF/lib/jackson-all-1.9.5.jar war/WEB-INF/lib/jackson-all-1.9.5.jar
 COPY war/WEB-INF/lib/twitter4j-core-3.0.3.jar war/WEB-INF/lib/twitter4j-core-3.0.3.jar
-RUN mvn dependency:go-offline -q
-
-# Copy source and web resources, then build
 COPY src/ src/
 COPY war/ war/
 RUN mvn package -DskipTests -q
