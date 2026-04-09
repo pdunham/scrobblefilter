@@ -1,0 +1,4 @@
+# Copy this file to scrobblefilter.properties and fill in real values.
+# Do NOT commit scrobblefilter.properties.
+lastfm.api.key=YOUR_LASTFM_API_KEY
+dev.default.user=YOUR_TWITTER_USERNAME

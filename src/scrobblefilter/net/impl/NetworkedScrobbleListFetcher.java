@@ -6,11 +6,11 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import scrobblefilter.AppConfig;
 import scrobblefilter.net.ScrobbleListFetcher;
 
 public class NetworkedScrobbleListFetcher implements ScrobbleListFetcher {
 
-	private static final String LAST_FM_API_KEY = "c0c210a13a2d568ed460f60479b79092";
 	private static final String BASE_URL = "http://ws.audioscrobbler.com/2.0/?";
 	private static final String METHOD_PARM = "method=user.gettopartists";
 	private static final String PERIOD_PARM = "period=7day";
@@ -37,7 +37,7 @@ public class NetworkedScrobbleListFetcher implements ScrobbleListFetcher {
 	}
 
 	private String constructUrl(String userName) {
-		return BASE_URL+METHOD_PARM+"&"+PERIOD_PARM+"&"+FORMAT_PARM+"&api_key="+ LAST_FM_API_KEY +"&user="+userName;
+		return BASE_URL+METHOD_PARM+"&"+PERIOD_PARM+"&"+FORMAT_PARM+"&api_key="+ AppConfig.get("lastfm.api.key") +"&user="+userName;
 	}
 
 }
