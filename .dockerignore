@@ -1,0 +1,18 @@
+# Build output
+target/
+
+# Local Maven repository
+.m2/
+
+# Pre-staged lib dir — Docker build copies only the two system-scoped JARs
+# (jackson-all, twitter4j) explicitly; everything else is pulled by Maven
+war/WEB-INF/lib/
+
+# IDE and OS files
+.claude/
+.settings/
+.classpath
+.DS_Store
+
+# Git
+.git/
