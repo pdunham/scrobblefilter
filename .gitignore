@@ -13,6 +13,7 @@ war/WEB-INF/lib/*datanucleus*
 war/WEB-INF/lib/*jdo*
 war/WEB-INF/lib/*geronimo*
 war/WEB-INF/appengine-generated/*
+war/WEB-INF/scrobblefilter.properties
 
 # OS generated files #
 ######################

@@ -26,6 +26,14 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- App Engine API (provided by the GAE runtime; needed to compile Objectify-dependent code) -->
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-1.0-sdk</artifactId>
+            <version>1.9.79</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Spring 6 -->
         <dependency>
             <groupId>org.springframework</groupId>
