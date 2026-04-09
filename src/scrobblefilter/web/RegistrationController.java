@@ -2,7 +2,6 @@ package scrobblefilter.web;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -15,24 +14,25 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.googlecode.objectify.NotFoundException;
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.Key;
 
+import scrobblefilter.model.DatastoreProvider;
 import scrobblefilter.model.FilteredArtist;
 import scrobblefilter.model.Preferences;
 import scrobblefilter.model.User;
 
 @Controller
 public class RegistrationController {
-	
+
 	private static final Logger log = Logger.getLogger(RegistrationController.class.getName());
 
-
 	@RequestMapping(value="welcome", method = GET)
-	public ModelAndView helloWorld(HttpServletRequest request, HttpServletResponse response) 
+	public ModelAndView helloWorld(HttpServletRequest request, HttpServletResponse response)
 	{
 		return new ModelAndView("newuser");
 	}
-	
+
 	@RequestMapping(value="register", method=POST)
 	public ModelAndView welcomeUser(HttpServletRequest request, HttpServletResponse response, User user, BindingResult result, Map<String, Object> model)
 	{
@@ -40,7 +40,6 @@ public class RegistrationController {
 		request.getSession().setAttribute("user", user);
 		model.put("user", user);
 		return new ModelAndView("helloworld", "model", model);
-		
 	}
 
 	@RequestMapping(value="updateCronSetting", method=POST)
@@ -52,39 +51,24 @@ public class RegistrationController {
 		request.getSession().setAttribute("user", foundUser);
 		model.put("user", foundUser);
 		return new ModelAndView("helloworld", "model", model);
-		
 	}
 
-	
 	protected static User findOrCreateUser(User user) {
-		User maybeUser = null;
-		try {
-			maybeUser = User.findByName(user.getTwitterName());
-		} catch (NotFoundException nfe) {
-			log.fine("could not find "+user.getTwitterName());	
-		}
-		if (maybeUser==null) {
+		User maybeUser = User.findByName(user.getTwitterName());
+		if (maybeUser == null) {
 			user.save();
-			log.fine("saved "+user.getTwitterName());
+			log.fine("saved " + user.getTwitterName());
 		} else {
 			user = maybeUser;
-			log.fine("found "+user.getTwitterName());
+			log.fine("found " + user.getTwitterName());
 		}
 		return user;
 	}
-	
+
 	protected static User findUser(String twitterName) {
-		
-		User user = null;
-		try {
-			user = User.findByName(twitterName);
-		} catch (NotFoundException e) {
-			System.out.println("could not find "+twitterName);
-		}
-		return user;
-		
+		return User.findByName(twitterName);
 	}
-	
+
 	@RequestMapping(value="updateLastfmName", method=POST)
 	public ModelAndView updateLastFm(HttpServletRequest request, HttpServletResponse response, User user, BindingResult result, Map<String, Object> model)
 	{
@@ -94,24 +78,26 @@ public class RegistrationController {
 		model.put("user", datastoreuser);
 		return new ModelAndView("helloworld", "model", model);
 	}
-	
+
 	@RequestMapping(value="addartist", method={POST,GET})
 	public ModelAndView addArtistToFilter(HttpServletRequest request, HttpServletResponse response, Preferences prefs, BindingResult result, Map<String, Object> model)
 	{
 		User user = findUser(prefs.getTwitterName());
-		if (user==null) return new ModelAndView("newuser");
-		FilteredArtist artist = new FilteredArtist(user.getTwitterName(), user.getLastfmName(),prefs.getArtist());
+		if (user == null) return new ModelAndView("newuser");
+		FilteredArtist artist = new FilteredArtist(user.getTwitterName(), user.getLastfmName(), prefs.getArtist());
 		user.addFilteredArtist(artist);
-		model.put("user",user);
+		model.put("user", user);
 		return new ModelAndView("helloworld", "model", model);
 	}
-	
+
 	@RequestMapping(value="removeartist", method=GET)
 	public ModelAndView removeArtistFromFilter(HttpServletRequest request, HttpServletResponse response, FilteredArtist artist, BindingResult result, Map<String, Object> model)
 	{
 		User user = findUser(artist.getTwitterName());
-		ofy().delete().entity(artist);
-		model.put("user",user);
+		Datastore ds = DatastoreProvider.get();
+		Key key = ds.newKeyFactory().setKind("FilteredArtist").newKey(artist.getId());
+		ds.delete(key);
+		model.put("user", user);
 		return new ModelAndView("helloworld", "model", model);
 	}
 }
