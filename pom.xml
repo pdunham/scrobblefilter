@@ -7,7 +7,7 @@
     <groupId>scrobblefilter</groupId>
     <artifactId>scrobblefilter</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -53,7 +53,7 @@
             <version>${spring.version}</version>
         </dependency>
 
-        <!-- JUnit for test runner -->
+        <!-- JUnit -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -61,7 +61,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Jackson (already in lib/) -->
+        <!-- Jackson (bundled JAR; not on Maven Central as a single artifact) -->
         <dependency>
             <groupId>jackson-all</groupId>
             <artifactId>jackson-all</artifactId>
@@ -77,7 +77,7 @@
             <version>2.19.1</version>
         </dependency>
 
-        <!-- Twitter4J -->
+        <!-- Twitter4J (JAR already in war/WEB-INF/lib/) -->
         <dependency>
             <groupId>twitter4j</groupId>
             <artifactId>twitter4j-core</artifactId>
@@ -91,23 +91,14 @@
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
         <plugins>
-            <!-- Copy Spring 6 JARs into war/WEB-INF/lib/ for legacy GAE deployment -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-deps</id>
-                        <phase>prepare-package</phase>
-                        <goals><goal>copy-dependencies</goal></goals>
-                        <configuration>
-                            <outputDirectory>${lib.dir}</outputDirectory>
-                            <excludeScope>provided</excludeScope>
-                            <excludeScope>test</excludeScope>
-                            <excludeGroupIds>jackson-all,twitter4j</excludeGroupIds>
-                        </configuration>
-                    </execution>
-                </executions>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <!-- Web resources live in war/ rather than src/main/webapp -->
+                    <warSourceDirectory>war</warSourceDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>
