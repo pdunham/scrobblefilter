@@ -4,9 +4,11 @@ target/
 # Local Maven repository
 .m2/
 
-# Pre-staged lib dir — Docker build copies only the two system-scoped JARs
-# (jackson-all, twitter4j) explicitly; everything else is pulled by Maven
+# Exclude pre-staged lib dir but allow the two system-scoped JARs that
+# aren't on Maven Central (jackson-all, twitter4j)
 war/WEB-INF/lib/
+!war/WEB-INF/lib/jackson-all-1.9.5.jar
+!war/WEB-INF/lib/twitter4j-core-3.0.3.jar
 
 # IDE and OS files
 .claude/
