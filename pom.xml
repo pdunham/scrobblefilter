@@ -26,14 +26,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- App Engine API (provided by the GAE runtime; needed to compile Objectify-dependent code) -->
-        <dependency>
-            <groupId>com.google.appengine</groupId>
-            <artifactId>appengine-api-1.0-sdk</artifactId>
-            <version>1.9.79</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Spring 6 -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -78,22 +70,11 @@
             <systemPath>${lib.dir}/jackson-all-1.9.5.jar</systemPath>
         </dependency>
 
-        <!-- Guava -->
+        <!-- Google Cloud Datastore -->
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>14.0.1</version>
-            <scope>system</scope>
-            <systemPath>${lib.dir}/guava-14.0.1.jar</systemPath>
-        </dependency>
-
-        <!-- Objectify -->
-        <dependency>
-            <groupId>objectify</groupId>
-            <artifactId>objectify</artifactId>
-            <version>4.0rc1</version>
-            <scope>system</scope>
-            <systemPath>${lib.dir}/objectify-4.0rc1.jar</systemPath>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-datastore</artifactId>
+            <version>2.19.1</version>
         </dependency>
 
         <!-- Twitter4J -->
@@ -123,7 +104,7 @@
                             <outputDirectory>${lib.dir}</outputDirectory>
                             <excludeScope>provided</excludeScope>
                             <excludeScope>test</excludeScope>
-                            <excludeGroupIds>jackson-all,com.google.guava,objectify,twitter4j</excludeGroupIds>
+                            <excludeGroupIds>jackson-all,twitter4j</excludeGroupIds>
                         </configuration>
                     </execution>
                 </executions>

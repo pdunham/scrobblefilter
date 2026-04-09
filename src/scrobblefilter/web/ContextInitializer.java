@@ -5,19 +5,16 @@ import java.io.InputStream;
 
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
-import com.googlecode.objectify.ObjectifyService;
 
 import scrobblefilter.AppConfig;
-import scrobblefilter.model.FilteredArtist;
-import scrobblefilter.model.User;
+import scrobblefilter.model.DatastoreProvider;
 
 public class ContextInitializer implements ServletContextListener {
 
 	 public void contextDestroyed(ServletContextEvent arg) {}
 
 	 public void contextInitialized(ServletContextEvent arg) {
-		 ObjectifyService.register(User.class);
-		 ObjectifyService.register(FilteredArtist.class);
+		 DatastoreProvider.initialize();
 		 try (InputStream in = arg.getServletContext()
 				 .getResourceAsStream("/WEB-INF/scrobblefilter.properties")) {
 			 if (in != null) {

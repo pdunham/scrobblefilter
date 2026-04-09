@@ -1,31 +1,107 @@
 package scrobblefilter.model;
 
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.googlecode.objectify.ObjectifyService.ofy;
+public class User {
 
-@Entity
-public class User implements Serializable {
+	private static final String KIND = "User";
 
-	@Id 
-	 String twitterName;	
-	 private String token;
-	 private String tokenSecret;
-	 private String lastfmName;
-	 private String preface;
-	 private boolean useNumbers;
-	 @Index private boolean isRandom;
-	 @Index private boolean cron;
-	 private String prefixText;
-	 private static final long serialVersionUID = 6744250575418616690L;
-			 
-	 public String getPrefixText() {
+	String twitterName;
+	private String token;
+	private String tokenSecret;
+	private String lastfmName;
+	private String preface;
+	private boolean useNumbers;
+	private boolean isRandom;
+	private boolean cron;
+	private String prefixText;
+
+	public static User fromEntity(Entity e) {
+		if (e == null) return null;
+		User u = new User();
+		u.twitterName = e.getKey().getName();
+		u.token       = e.contains("token")       ? e.getString("token")       : null;
+		u.tokenSecret = e.contains("tokenSecret") ? e.getString("tokenSecret") : null;
+		u.lastfmName  = e.contains("lastfmName")  ? e.getString("lastfmName")  : null;
+		u.preface     = e.contains("preface")     ? e.getString("preface")     : null;
+		u.prefixText  = e.contains("prefixText")  ? e.getString("prefixText")  : null;
+		u.useNumbers  = e.contains("useNumbers")  && e.getBoolean("useNumbers");
+		u.isRandom    = e.contains("isRandom")    && e.getBoolean("isRandom");
+		u.cron        = e.contains("cron")        && e.getBoolean("cron");
+		return u;
+	}
+
+	private Entity toEntity() {
+		Datastore ds = DatastoreProvider.get();
+		Key key = ds.newKeyFactory().setKind(KIND).newKey(twitterName);
+		return Entity.newBuilder(key)
+			.set("token",       token       != null ? token       : "")
+			.set("tokenSecret", tokenSecret != null ? tokenSecret : "")
+			.set("lastfmName",  lastfmName  != null ? lastfmName  : "")
+			.set("preface",     preface     != null ? preface     : "")
+			.set("prefixText",  prefixText  != null ? prefixText  : "")
+			.set("useNumbers",  useNumbers)
+			.set("isRandom",    isRandom)
+			.set("cron",        cron)
+			.build();
+	}
+
+	public static User findByName(String name) {
+		Datastore ds = DatastoreProvider.get();
+		Key key = ds.newKeyFactory().setKind(KIND).newKey(name);
+		return fromEntity(ds.get(key));
+	}
+
+	public void save() {
+		DatastoreProvider.get().put(toEntity());
+	}
+
+	public void addFilteredArtist(FilteredArtist artist) {
+		artist.setOwner(this);
+		DatastoreProvider.get().put(artist.toEntity());
+	}
+
+	public void addRetweets(List<FilteredArtist> artists) {
+		for (FilteredArtist artist : artists) {
+			artist.setOwner(this);
+		}
+		Entity[] entityArray = artists.stream()
+			.map(FilteredArtist::toEntity)
+			.toArray(Entity[]::new);
+		DatastoreProvider.get().put(entityArray);
+	}
+
+	public List<String> getFilteredArtistAsStrings() {
+		ArrayList<String> artistStrings = new ArrayList<String>();
+		for (FilteredArtist artist : listAllFilteredArtists()) {
+			artistStrings.add(artist.getArtistName());
+		}
+		return artistStrings;
+	}
+
+	public List<FilteredArtist> listAllFilteredArtists() {
+		Datastore ds = DatastoreProvider.get();
+		Query<Entity> query = Query.newEntityQueryBuilder()
+			.setKind("FilteredArtist")
+			.setFilter(PropertyFilter.eq("owner", this.twitterName))
+			.build();
+		QueryResults<Entity> results = ds.run(query);
+		List<FilteredArtist> list = new ArrayList<>();
+		while (results.hasNext()) {
+			list.add(FilteredArtist.fromEntity(results.next()));
+		}
+		return list;
+	}
+
+	public String getPrefixText() {
 		return prefixText;
 	}
 
@@ -64,8 +140,8 @@ public class User implements Serializable {
 	public void setRandom(boolean isRandom) {
 		this.isRandom = isRandom;
 	}
-	
-	 public String getLastfmName() {
+
+	public String getLastfmName() {
 		return lastfmName;
 	}
 
@@ -74,79 +150,45 @@ public class User implements Serializable {
 	}
 
 	public User() {
-	  super();	
-	 }
-	
-	 public User(String twitterName, String token, String tokenSecret) {
-	  super();
-	  this.twitterName = twitterName;
-	  this.token = token;
-	  this.tokenSecret = tokenSecret;	
-	 }
-	
-	 public String getTwitterName() {
-	  return twitterName;
-	 }
-	
-	 public String getName() {
-		  return twitterName;
-		 }
-		
+		super();
+	}
+
+	public User(String twitterName, String token, String tokenSecret) {
+		super();
+		this.twitterName = twitterName;
+		this.token = token;
+		this.tokenSecret = tokenSecret;
+	}
+
+	public String getTwitterName() {
+		return twitterName;
+	}
+
+	public String getName() {
+		return twitterName;
+	}
+
 	public String getToken() {
 		return token;
 	}
-	
+
 	public void setToken(String token) {
 		this.token = token;
 	}
-	
+
 	public String getTokenSecret() {
 		return tokenSecret;
 	}
-	
+
 	public void setTokenSecret(String tokenSecret) {
 		this.tokenSecret = tokenSecret;
 	}
-	
+
 	public void setTwitterName(String name) {
 		this.twitterName = name;
 	}
 
 	public void setName(String name) {
 		this.twitterName = name;
-	}
-	
-
-	 public static User findByName(String name){
-		 return ofy().load().type(User.class).id(name).now();
-	 }
- 
-	public void save(){
-		ofy().save().entity(this).now();
-	}
-
-	public void addFilteredArtist(FilteredArtist artist) {
-		artist.setOwner(this);
-		ofy().save().entity(artist).now();
-	}
-	
-	public void addRetweets(List<FilteredArtist> artists){
-		 for(FilteredArtist artist: artists){
-		  artist.setOwner(this);
-		 }
-
-		 ofy().save().entities(artists);
-	}
-	
-	public List<String> getFilteredArtistAsStrings() {
-		ArrayList<String> artistStrings = new ArrayList<String>();
-		for (FilteredArtist artist : listAllFilteredArtists()) {
-			artistStrings.add(artist.getArtistName());
-		}
-		return artistStrings;
-	}
-	
-	public List<FilteredArtist> listAllFilteredArtists(){
-		return ofy().load().type(FilteredArtist.class).filter("owner", this.twitterName).list();		
 	}
 }
