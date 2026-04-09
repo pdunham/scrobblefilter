@@ -14,7 +14,7 @@ COPY war/ war/
 RUN mvn package -DskipTests -q
 
 # Stage 2: Run in Tomcat 10.1 (Jakarta Servlet 6.0)
-FROM tomcat:10.1-jdk17-temurin-alpine
+FROM tomcat:10.1-jdk17-temurin
 
 # Remove the default ROOT webapp
 RUN rm -rf /usr/local/tomcat/webapps/*
