@@ -1,5 +1,5 @@
 # Stage 1: Build the WAR
-FROM maven:3.9-eclipse-temurin-17-alpine AS build
+FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
 # Cache dependency downloads separately from source changes
