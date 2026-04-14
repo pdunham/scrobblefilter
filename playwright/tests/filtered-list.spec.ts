@@ -49,7 +49,7 @@ test('"filter this artist" button adds artist and returns to dashboard', async (
 
   // Should return to dashboard with artist now in filter list
   await expect(page.locator('body')).toContainText('Hello');
-  await expect(page.locator('table')).toContainText('Radiohead');
+  await expect(page.locator('table').last()).toContainText('Radiohead');
 });
 
 test('"go back" link navigates to the dashboard', async ({ page }) => {

@@ -14,18 +14,24 @@ async function addArtist(page: any, artist: string) {
   await page.click('input[type="submit"]');
 }
 
+// The filtered artists table is the second table on the page;
+// the first table is the add-artist form layout table.
+function filteredArtistsTable(page: any) {
+  return page.locator('table').last();
+}
+
 test('adding an artist shows it in the filtered artists table', async ({ page }) => {
   const handle = `testuser_${Date.now()}`;
   await setupUser(page, handle);
   await addArtist(page, 'Radiohead');
-  await expect(page.locator('table')).toContainText('Radiohead');
+  await expect(filteredArtistsTable(page)).toContainText('Radiohead');
 });
 
 test('removing an artist removes it from the filtered artists table', async ({ page }) => {
   const handle = `testuser_${Date.now()}`;
   await setupUser(page, handle);
   await addArtist(page, 'Radiohead');
-  await expect(page.locator('table')).toContainText('Radiohead');
+  await expect(filteredArtistsTable(page)).toContainText('Radiohead');
 
   await page.click('a[href*="removeartist"]');
 
@@ -40,7 +46,7 @@ test('adding multiple artists shows all of them in the table', async ({ page }) 
     await addArtist(page, artist);
   }
 
-  const table = page.locator('table');
+  const table = filteredArtistsTable(page);
   await expect(table).toContainText('Radiohead');
   await expect(table).toContainText('Portishead');
   await expect(table).toContainText('Massive Attack');

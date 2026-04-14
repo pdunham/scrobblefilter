@@ -23,7 +23,7 @@ export default defineConfig({
     // 2. Cloud Datastore emulator — replaces real Datastore during tests
     //    Prerequisite: gcloud SDK installed with the datastore emulator component
     {
-      command: 'gcloud --quiet beta emulators datastore start --host-port=localhost:8081',
+      command: 'gcloud --quiet beta emulators datastore start --host-port=0.0.0.0:8081',
       port: 8081,
       reuseExistingServer: true,
     },
@@ -32,14 +32,16 @@ export default defineConfig({
     {
       command: [
         'docker run --rm -p 8080:8080',
-        '-e DATASTORE_EMULATOR_HOST=host.docker.internal:8081',
+        '-e DATASTORE_EMULATOR_HOST=http://host.docker.internal:8081',
         '-e LASTFM_BASE_URL=http://host.docker.internal:9090/2.0/?',
         '-e GOOGLE_CLOUD_PROJECT=scrobblefilter',
         'scrobblefilter',
       ].join(' '),
-      port: 8080,
+      // Use url (not port) so Playwright waits for the app to be fully
+      // deployed, not just for Tomcat's TCP port to open.
+      url: 'http://localhost:8080/hello/welcome',
       reuseExistingServer: true,
-      timeout: 60_000, // Docker pull + container startup can be slow
+      timeout: 60_000,
     },
   ],
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
