@@ -11,7 +11,10 @@ import scrobblefilter.net.ScrobbleListFetcher;
 
 public class NetworkedScrobbleListFetcher implements ScrobbleListFetcher {
 
-	private static final String BASE_URL = "http://ws.audioscrobbler.com/2.0/?";
+	private static final String BASE_URL =
+		System.getenv("LASTFM_BASE_URL") != null
+			? System.getenv("LASTFM_BASE_URL")
+			: "http://ws.audioscrobbler.com/2.0/?";
 	private static final String METHOD_PARM = "method=user.gettopartists";
 	private static final String PERIOD_PARM = "period=7day";
 	private static final String FORMAT_PARM = "format=json";

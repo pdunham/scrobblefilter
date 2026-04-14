@@ -1,0 +1,11 @@
+{
+  "name": "scrobblefilter-e2e",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test tests/smoke.spec.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0"
+  }
+}

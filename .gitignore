@@ -15,6 +15,20 @@ war/WEB-INF/lib/*geronimo*
 war/WEB-INF/appengine-generated/*
 war/WEB-INF/scrobblefilter.properties
 cloudrunupgrade.md
+playwrightplan.md
+
+# Maven build output
+target/
+
+# Maven-managed JARs (populated by mvn package); keep the two system-scoped JARs
+war/WEB-INF/lib/*.jar
+!war/WEB-INF/lib/jackson-all-1.9.5.jar
+!war/WEB-INF/lib/twitter4j-core-3.0.3.jar
+
+# Playwright output
+playwright/node_modules/
+playwright/playwright-report/
+playwright/test-results/
 
 # OS generated files #
 ######################

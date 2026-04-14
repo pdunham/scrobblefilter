@@ -1,0 +1,19 @@
+{
+  "topartists": {
+    "artist": [
+      {"name": "Radiohead",       "playcount": "42", "mbid": "", "url": "", "streamable": "0", "image": []},
+      {"name": "Portishead",      "playcount": "38", "mbid": "", "url": "", "streamable": "0", "image": []},
+      {"name": "Massive Attack",  "playcount": "35", "mbid": "", "url": "", "streamable": "0", "image": []},
+      {"name": "Boards of Canada","playcount": "29", "mbid": "", "url": "", "streamable": "0", "image": []},
+      {"name": "Aphex Twin",      "playcount": "24", "mbid": "", "url": "", "streamable": "0", "image": []},
+      {"name": "Autechre",        "playcount": "18", "mbid": "", "url": "", "streamable": "0", "image": []}
+    ],
+    "@attr": {
+      "user": "testlastfm",
+      "total": "6",
+      "page": "1",
+      "perPage": "50",
+      "totalPages": "1"
+    }
+  }
+}

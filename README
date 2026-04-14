@@ -1,3 +1,45 @@
 Filter the scrobbles you tweet
-Here's the code. The original project ran in Eclipse 
+Here's the code. The original project ran in Eclipse
 with the Google App Engine plugin.
+
+## Build
+
+Requires Java 17 and Maven.
+
+    mvn package -DskipTests
+
+## Running Tests
+
+### Unit tests
+
+    mvn test
+
+### End-to-end tests (Playwright)
+
+Prerequisites:
+- Docker (image must be built first)
+- Node.js
+- Google Cloud SDK with the beta and Datastore emulator components installed:
+
+      gcloud components install beta cloud-datastore-emulator
+
+One-time setup:
+
+    docker build -t scrobblefilter .
+    cd playwright
+    npm install
+    npx playwright install chromium
+
+Run all tests (Playwright automatically starts the Datastore emulator, the app
+in Docker, and a Last.fm mock server before running):
+
+    cd playwright
+    npm test
+
+Run smoke tests only (no Datastore emulator needed):
+
+    cd playwright
+    npm run test:smoke
+
+See playwrightplan.md for a full description of the test scenarios and
+infrastructure setup.
