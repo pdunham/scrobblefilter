@@ -19,8 +19,9 @@ if (model != null) {
 	//try the session
 	user = (User)request.getSession().getAttribute("user");
 	if (user == null)
-	{	
+	{
 		response.sendRedirect("/hello/welcome");
+		return;
 	}
 }
 %>
@@ -33,23 +34,27 @@ Hello<%= user==null?"":", "+user.getTwitterName()%>
 <% } else { %>
 you have linked your twitter account
 <% } %>
-<table>
 <% if (user.getLastfmName()==null) { %>
 <form method=post action=updateLastfmName>
 <input type=hidden name=twitterName value="<%=user.getTwitterName()%>"/>
+<table>
 <tr><td>last.fm user name</td><td><input type=text name=lastfmName></td></tr>
+</table>
+<input type=submit>
+</form>
 <% } else { %>
 <P>Your lastfm name is <%=user.getLastfmName()%>
 <form method=post action=addartist>
 <input type=hidden name=twitterName value="<%=user.getTwitterName()%>"/>
 <input type=hidden name=lastfmName value="<%=user.getLastfmName()%>"/>
+<table>
 <tr><td>add an artist to filter</td><td><input type=text name=artist></td></tr>
-<% } %>
 </table>
 <input type=submit>
 </form>
+<% } %>
 <form method=post action=updateCronSetting>
-<P><input type="checkbox" <%= user.isCron()?"checked":"" %> disabled/> use cron job 
+<P><input type="checkbox" <%= user.isCron()?"checked":"" %> disabled/> use cron job
 <input type=hidden name=twitterName value="<%= user.getTwitterName() %>"/>
 <input type=submit name=cron value=<%= !user.isCron() %>>
 </form>
