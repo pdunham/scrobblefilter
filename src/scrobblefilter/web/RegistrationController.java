@@ -3,8 +3,10 @@ package scrobblefilter.web;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,10 +35,22 @@ public class RegistrationController {
 		return new ModelAndView("newuser");
 	}
 
+	@RequestMapping(value="logout", method = GET)
+	public ModelAndView logout(HttpServletRequest request, HttpServletResponse response)
+	{
+		request.getSession().invalidate();
+		return new ModelAndView("redirect:/hello/welcome");
+	}
+
 	@RequestMapping(value="register", method=POST)
 	public ModelAndView welcomeUser(HttpServletRequest request, HttpServletResponse response, User user, BindingResult result, Map<String, Object> model)
 	{
 		user = findOrCreateUser(user);
+		String submittedLastfm = request.getParameter("lastfmName");
+		if (submittedLastfm != null && !submittedLastfm.isEmpty() && user.getLastfmName() == null) {
+			user.setLastfmName(submittedLastfm);
+			user.save();
+		}
 		request.getSession().setAttribute("user", user);
 		model.put("user", user);
 		return new ModelAndView("helloworld", "model", model);
@@ -94,10 +108,14 @@ public class RegistrationController {
 	public ModelAndView removeArtistFromFilter(HttpServletRequest request, HttpServletResponse response, FilteredArtist artist, BindingResult result, Map<String, Object> model)
 	{
 		User user = findUser(artist.getTwitterName());
+		List<FilteredArtist> remaining = user.listAllFilteredArtists().stream()
+			.filter(a -> !artist.getId().equals(a.getId()))
+			.collect(Collectors.toList());
 		Datastore ds = DatastoreProvider.get();
 		Key key = ds.newKeyFactory().setKind("FilteredArtist").newKey(artist.getId());
 		ds.delete(key);
 		model.put("user", user);
+		model.put("filteredArtists", remaining);
 		return new ModelAndView("helloworld", "model", model);
 	}
 }

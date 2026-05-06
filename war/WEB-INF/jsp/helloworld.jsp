@@ -28,11 +28,13 @@ if (model != null) {
 
 <body>
 <div id=main>
+<% String authError = (model != null) ? (String)model.get("authError") : null; %>
+<% if (authError != null) { %><P style="color:red"><%= authError %></P><% } %>
 Hello<%= user==null?"":", "+user.getTwitterName()%>
 <% if (user.getToken()==null) { %>
 <P>You have not linked your twitter account.  <a href="twittersignin?name=<%=user.getName()%>">do it</a>
 <% } else { %>
-you have linked your twitter account
+you have linked your twitter account &mdash; <a href="logout">log out</a>
 <% } %>
 <% if (user.getLastfmName()==null) { %>
 <form method=post action=updateLastfmName>
@@ -60,7 +62,10 @@ you have linked your twitter account
 </form>
 <table>
 <%
-List<FilteredArtist> artists = user.listAllFilteredArtists() ;
+@SuppressWarnings("unchecked")
+List<FilteredArtist> artists = (model != null && model.containsKey("filteredArtists"))
+    ? (List<FilteredArtist>)model.get("filteredArtists")
+    : user.listAllFilteredArtists();
 if (!artists.isEmpty()) { %>
 <tr><th colspan=2>Filtered Artists So Far</th></tr>
 <% }

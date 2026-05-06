@@ -65,6 +65,10 @@ public class HelloController {
 	{
 		if (user.getName()==null) user = (User)request.getSession().getAttribute("user");
 		user = RegistrationController.findUser(user.getTwitterName());
+		if (user.getLastfmName() == null) {
+			model.put("user", user);
+			return new ModelAndView("helloworld", "model", model);
+		}
 		List<String> filteredArtistsAsStrings = user.getFilteredArtistAsStrings();
 		Preferences prefs = new Preferences();
 		prefs.setTwitterName(user.getTwitterName());

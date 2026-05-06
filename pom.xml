@@ -110,6 +110,17 @@
                 <configuration>
                     <!-- Web resources live in war/ rather than src/main/webapp -->
                     <warSourceDirectory>war</warSourceDirectory>
+                    <webResources>
+                        <!-- twitter4j.properties must be on the classpath (WEB-INF/classes/)
+                             so Twitter4J's ClassLoader.getResourceAsStream() can find it -->
+                        <resource>
+                            <directory>war/WEB-INF</directory>
+                            <includes>
+                                <include>twitter4j.properties</include>
+                            </includes>
+                            <targetPath>WEB-INF/classes</targetPath>
+                        </resource>
+                    </webResources>
                 </configuration>
             </plugin>
         </plugins>

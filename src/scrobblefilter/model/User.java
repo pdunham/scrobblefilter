@@ -30,7 +30,8 @@ public class User {
 		u.twitterName = e.getKey().getName();
 		u.token       = e.contains("token")       ? e.getString("token")       : null;
 		u.tokenSecret = e.contains("tokenSecret") ? e.getString("tokenSecret") : null;
-		u.lastfmName  = e.contains("lastfmName")  ? e.getString("lastfmName")  : null;
+		String rawLastfm = e.contains("lastfmName") ? e.getString("lastfmName") : null;
+		u.lastfmName  = (rawLastfm != null && !rawLastfm.isEmpty()) ? rawLastfm : null;
 		u.preface     = e.contains("preface")     ? e.getString("preface")     : null;
 		u.prefixText  = e.contains("prefixText")  ? e.getString("prefixText")  : null;
 		u.useNumbers  = e.contains("useNumbers")  && e.getBoolean("useNumbers");
@@ -146,7 +147,7 @@ public class User {
 	}
 
 	public void setLastfmName(String lastfmName) {
-		this.lastfmName = lastfmName;
+		this.lastfmName = (lastfmName == null || lastfmName.isEmpty()) ? null : lastfmName;
 	}
 
 	public User() {

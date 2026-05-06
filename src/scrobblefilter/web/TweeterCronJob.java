@@ -40,7 +40,7 @@ public class TweeterCronJob {
 				tweeter.doTweet(u);
 				log.info("sent tweet for "+u.getName());
 			} catch (TwitterException e) {
-				log.warning(e.getErrorMessage());
+				log.warning(e.getMessage());
 			}
 		}
 	}
