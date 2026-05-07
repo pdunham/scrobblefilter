@@ -30,6 +30,14 @@ playwright/node_modules/
 playwright/playwright-report/
 playwright/test-results/
 
+# Local IDE / tooling state
+.claude/
+.vscode/
+
+# Secrets — never commit
+war/WEB-INF/twitter4j.properties
+twitter_oauth2_secrets.txt
+
 # OS generated files #
 ######################
 .DS_Store*
