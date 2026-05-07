@@ -44,6 +44,12 @@ public class TwitterSignInController {
 			String consumerSecret = props.getProperty("twitter4j.oauth.consumerSecret");
 
 			StringBuffer callbackURL = request.getRequestURL();
+			// Cloud Run terminates SSL; honour X-Forwarded-Proto so the callback URL
+			// uses https:// to match what is registered in the Twitter developer console.
+			String forwardedProto = request.getHeader("X-Forwarded-Proto");
+			if (forwardedProto != null && callbackURL.indexOf("http:") == 0) {
+				callbackURL.replace(0, 4, forwardedProto);
+			}
 			int index = callbackURL.lastIndexOf("/");
 			callbackURL.replace(index, callbackURL.length(), "").append("/callback");
 
