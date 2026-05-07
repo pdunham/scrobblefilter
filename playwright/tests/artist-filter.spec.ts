@@ -1,10 +1,17 @@
 import { test, expect } from '@playwright/test';
 
-async function setupUser(page: any, handle: string) {
+function uniqueHandle(): string {
+  return `testuser_${Date.now()}`;
+}
+
+function uniqueLastfm(): string {
+  return `lastfm_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+}
+
+async function setupUser(page: any, handle: string, lastfm: string) {
   await page.goto('/hello/welcome');
+  await page.fill('input[name="lastfmName"]', lastfm);
   await page.fill('input[name="name"]', handle);
-  await page.click('input[type="submit"]');
-  await page.fill('input[name="lastfmName"]', 'mylastfm');
   await page.click('input[type="submit"]');
   // Now on dashboard with add-artist form visible
 }
@@ -21,15 +28,13 @@ function filteredArtistsTable(page: any) {
 }
 
 test('adding an artist shows it in the filtered artists table', async ({ page }) => {
-  const handle = `testuser_${Date.now()}`;
-  await setupUser(page, handle);
+  await setupUser(page, uniqueHandle(), uniqueLastfm());
   await addArtist(page, 'Radiohead');
   await expect(filteredArtistsTable(page)).toContainText('Radiohead');
 });
 
 test('removing an artist removes it from the filtered artists table', async ({ page }) => {
-  const handle = `testuser_${Date.now()}`;
-  await setupUser(page, handle);
+  await setupUser(page, uniqueHandle(), uniqueLastfm());
   await addArtist(page, 'Radiohead');
   await expect(filteredArtistsTable(page)).toContainText('Radiohead');
 
@@ -39,8 +44,7 @@ test('removing an artist removes it from the filtered artists table', async ({ p
 });
 
 test('adding multiple artists shows all of them in the table', async ({ page }) => {
-  const handle = `testuser_${Date.now()}`;
-  await setupUser(page, handle);
+  await setupUser(page, uniqueHandle(), uniqueLastfm());
 
   for (const artist of ['Radiohead', 'Portishead', 'Massive Attack']) {
     await addArtist(page, artist);
@@ -53,8 +57,7 @@ test('adding multiple artists shows all of them in the table', async ({ page }) 
 });
 
 test('cron toggle changes cron state on the dashboard', async ({ page }) => {
-  const handle = `testuser_${Date.now()}`;
-  await setupUser(page, handle);
+  await setupUser(page, uniqueHandle(), uniqueLastfm());
 
   // New user has cron=false; checkbox should be unchecked
   await expect(page.locator('input[type="checkbox"]')).not.toBeChecked();
@@ -66,8 +69,7 @@ test('cron toggle changes cron state on the dashboard', async ({ page }) => {
   await expect(page.locator('input[type="checkbox"]')).toBeChecked();
 });
 
-test('filtered list link is visible after Last.fm name is set', async ({ page }) => {
-  const handle = `testuser_${Date.now()}`;
-  await setupUser(page, handle);
+test('filtered list link is visible after registration', async ({ page }) => {
+  await setupUser(page, uniqueHandle(), uniqueLastfm());
   await expect(page.locator('a[href*="filter"]')).toBeVisible();
 });

@@ -24,40 +24,29 @@ if (model != null) {
 		return;
 	}
 }
+String greetingName = user==null ? "" : (user.getTwitterName() != null ? user.getTwitterName() : user.getLastfmName());
 %>
 
 <body>
 <div id=main>
 <% String authError = (model != null) ? (String)model.get("authError") : null; %>
 <% if (authError != null) { %><P style="color:red"><%= authError %></P><% } %>
-Hello<%= user==null?"":", "+user.getTwitterName()%>
+Hello<%= user==null?"":", "+greetingName%>
 <% if (user.getToken()==null) { %>
-<P>You have not linked your twitter account.  <a href="twittersignin?name=<%=user.getName()%>">do it</a>
+<P>You have not linked your twitter account.  <a href="twittersignin?lastfmName=<%=user.getLastfmName()%>">do it</a>
 <% } else { %>
 you have linked your twitter account &mdash; <a href="logout">log out</a>
 <% } %>
-<% if (user.getLastfmName()==null) { %>
-<form method=post action=updateLastfmName>
-<input type=hidden name=twitterName value="<%=user.getTwitterName()%>"/>
-<table>
-<tr><td>last.fm user name</td><td><input type=text name=lastfmName></td></tr>
-</table>
-<input type=submit>
-</form>
-<% } else { %>
 <P>Your lastfm name is <%=user.getLastfmName()%>
 <form method=post action=addartist>
-<input type=hidden name=twitterName value="<%=user.getTwitterName()%>"/>
 <input type=hidden name=lastfmName value="<%=user.getLastfmName()%>"/>
 <table>
 <tr><td>add an artist to filter</td><td><input type=text name=artist></td></tr>
 </table>
 <input type=submit>
 </form>
-<% } %>
 <form method=post action=updateCronSetting>
 <P><input type="checkbox" <%= user.isCron()?"checked":"" %> disabled/> use cron job
-<input type=hidden name=twitterName value="<%= user.getTwitterName() %>"/>
 <input type=submit name=cron value=<%= !user.isCron() %>>
 </form>
 <table>
@@ -71,12 +60,10 @@ if (!artists.isEmpty()) { %>
 <% }
 for (FilteredArtist artist : artists) {
 %>
-<tr><td><%=artist.getArtistName()%></td><td><a href="removeartist?id=<%=artist.getId()%>&twitterName=<%=user.getTwitterName()%>">remove</a></td></tr>
+<tr><td><%=artist.getArtistName()%></td><td><a href="removeartist?id=<%=artist.getId()%>">remove</a></td></tr>
 <% } %>
 </table>
-<% if (user.getLastfmName()!=null) { %>
-<a href="filter?name=<%=user.getName()%>">see the filtered list</a>
-<% } %>
+<a href="filter?lastfmName=<%=user.getLastfmName()%>">see the filtered list</a>
 </div> <!-- main -->
 </body>
 </html>

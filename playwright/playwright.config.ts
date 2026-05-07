@@ -22,8 +22,11 @@ export default defineConfig({
     },
     // 2. Cloud Datastore emulator — replaces real Datastore during tests
     //    Prerequisite: gcloud SDK installed with the datastore emulator component
+    //    --consistency=1.0 makes all queries strongly consistent (matches modern
+    //    Firestore-in-Datastore-mode production behavior; default 0.9 introduces
+    //    flaky read-your-writes failures in tests that exercise non-ancestor queries).
     {
-      command: 'gcloud --quiet beta emulators datastore start --host-port=0.0.0.0:8081',
+      command: 'gcloud --quiet beta emulators datastore start --host-port=0.0.0.0:8081 --consistency=1.0',
       port: 8081,
       reuseExistingServer: true,
     },

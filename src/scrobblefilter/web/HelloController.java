@@ -61,14 +61,12 @@ public class HelloController {
 	}
 	
 	@RequestMapping(value="filter", method=GET)
-	public ModelAndView retrieveFilteredList(HttpServletRequest request, HttpServletResponse response, User user, BindingResult result, Map<String, Object> model) 
+	public ModelAndView retrieveFilteredList(HttpServletRequest request, HttpServletResponse response, User user, BindingResult result, Map<String, Object> model)
 	{
-		if (user.getName()==null) user = (User)request.getSession().getAttribute("user");
-		user = RegistrationController.findUser(user.getTwitterName());
-		if (user.getLastfmName() == null) {
-			model.put("user", user);
-			return new ModelAndView("helloworld", "model", model);
-		}
+		if (user.getLastfmName() == null) user = (User)request.getSession().getAttribute("user");
+		if (user == null || user.getLastfmName() == null) return new ModelAndView("redirect:/hello/welcome");
+		user = RegistrationController.findUser(user.getLastfmName());
+		if (user == null) return new ModelAndView("redirect:/hello/welcome");
 		List<String> filteredArtistsAsStrings = user.getFilteredArtistAsStrings();
 		Preferences prefs = new Preferences();
 		prefs.setTwitterName(user.getTwitterName());

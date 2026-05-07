@@ -9,19 +9,19 @@ public class FilteredArtist {
 	private static final String KIND = "FilteredArtist";
 
 	String id;
-	String twitterName;
 	String lastfmName;
 	String artistName;
 	String owner;
+	// Legacy: only populated when reading old-format entities during migration
+	String twitterName;
 
 	public FilteredArtist() {
 		super();
 	}
 
-	public FilteredArtist(String twitterName, String lastfmName, String artistName) {
+	public FilteredArtist(String lastfmName, String artistName) {
 		super();
-		this.id = twitterName + ":" + lastfmName + ":" + artistName;
-		this.twitterName = twitterName;
+		this.id = lastfmName + ":" + artistName;
 		this.lastfmName = lastfmName;
 		this.artistName = artistName;
 	}
@@ -41,7 +41,6 @@ public class FilteredArtist {
 		Datastore ds = DatastoreProvider.get();
 		Key key = ds.newKeyFactory().setKind(KIND).newKey(id);
 		return Entity.newBuilder(key)
-			.set("twitterName", twitterName != null ? twitterName : "")
 			.set("lastfmName",  lastfmName  != null ? lastfmName  : "")
 			.set("artistName",  artistName  != null ? artistName  : "")
 			.set("owner",       owner       != null ? owner       : "")
@@ -80,12 +79,16 @@ public class FilteredArtist {
 		this.artistName = artistName;
 	}
 
-	public User getOwner() {
-		return User.findByName(owner);
+	public String getOwner() {
+		return owner;
+	}
+
+	public User getOwnerUser() {
+		return User.findByLastfmName(owner);
 	}
 
 	public void setOwner(User owner) {
-		this.owner = owner.twitterName;
+		this.owner = owner.getLastfmName();
 	}
 
 }

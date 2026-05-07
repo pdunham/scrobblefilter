@@ -31,9 +31,11 @@ public class TwitterSignInController {
 			throws IOException, ServletException {
 		if (request.getSession().getAttribute("user") == null) {
 			log.warning("no user in session - trying to look one up");
-			user = RegistrationController.findUser(user.getTwitterName());
+			user = RegistrationController.findUser(user.getLastfmName());
 			if (user == null) {
 				log.warning("there is no user in the session for twitter signin");
+				response.sendRedirect("/hello/welcome");
+				return;
 			} else {
 				request.getSession().setAttribute("user", user);
 			}
@@ -61,8 +63,11 @@ public class TwitterSignInController {
 
 			User sessionUser = (User) request.getSession().getAttribute("user");
 			String expectedName = (sessionUser != null) ? sessionUser.getTwitterName() : user.getTwitterName();
-			response.sendRedirect(AUTHORIZE_URL + "?oauth_token=" + requestToken.get("oauth_token")
-					+ "&force_login=true&screen_name=" + expectedName);
+			String redirectUrl = AUTHORIZE_URL + "?oauth_token=" + requestToken.get("oauth_token") + "&force_login=true";
+			if (expectedName != null && !expectedName.isEmpty()) {
+				redirectUrl += "&screen_name=" + expectedName;
+			}
+			response.sendRedirect(redirectUrl);
 		} catch (Exception e) {
 			log.warning("Error getting request token: " + e.getMessage());
 			throw new ServletException(e);
@@ -89,7 +94,9 @@ public class TwitterSignInController {
 
 			if (user != null) {
 				String returnedName = accessToken.get("screen_name");
-				if (returnedName != null && !returnedName.equalsIgnoreCase(user.getTwitterName())) {
+				if (user.getTwitterName() == null) {
+					user.setTwitterName(returnedName);
+				} else if (returnedName != null && !returnedName.equalsIgnoreCase(user.getTwitterName())) {
 					log.warning("OAuth account mismatch: expected @" + user.getTwitterName()
 							+ " but got @" + returnedName);
 					Map<String, Object> errorModel = new HashMap<>();

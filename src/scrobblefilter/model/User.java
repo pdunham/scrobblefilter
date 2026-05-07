@@ -27,11 +27,11 @@ public class User {
 	public static User fromEntity(Entity e) {
 		if (e == null) return null;
 		User u = new User();
-		u.twitterName = e.getKey().getName();
+		u.lastfmName  = e.getKey().getName();
+		String rawTwitter = e.contains("twitterName") ? e.getString("twitterName") : null;
+		u.twitterName = (rawTwitter != null && !rawTwitter.isEmpty()) ? rawTwitter : null;
 		u.token       = e.contains("token")       ? e.getString("token")       : null;
 		u.tokenSecret = e.contains("tokenSecret") ? e.getString("tokenSecret") : null;
-		String rawLastfm = e.contains("lastfmName") ? e.getString("lastfmName") : null;
-		u.lastfmName  = (rawLastfm != null && !rawLastfm.isEmpty()) ? rawLastfm : null;
 		u.preface     = e.contains("preface")     ? e.getString("preface")     : null;
 		u.prefixText  = e.contains("prefixText")  ? e.getString("prefixText")  : null;
 		u.useNumbers  = e.contains("useNumbers")  && e.getBoolean("useNumbers");
@@ -42,8 +42,9 @@ public class User {
 
 	private Entity toEntity() {
 		Datastore ds = DatastoreProvider.get();
-		Key key = ds.newKeyFactory().setKind(KIND).newKey(twitterName);
+		Key key = ds.newKeyFactory().setKind(KIND).newKey(lastfmName);
 		return Entity.newBuilder(key)
+			.set("twitterName", twitterName != null ? twitterName : "")
 			.set("token",       token       != null ? token       : "")
 			.set("tokenSecret", tokenSecret != null ? tokenSecret : "")
 			.set("lastfmName",  lastfmName  != null ? lastfmName  : "")
@@ -55,13 +56,17 @@ public class User {
 			.build();
 	}
 
-	public static User findByName(String name) {
+	public static User findByLastfmName(String lastfmName) {
+		if (lastfmName == null || lastfmName.isEmpty()) return null;
 		Datastore ds = DatastoreProvider.get();
-		Key key = ds.newKeyFactory().setKind(KIND).newKey(name);
+		Key key = ds.newKeyFactory().setKind(KIND).newKey(lastfmName);
 		return fromEntity(ds.get(key));
 	}
 
 	public void save() {
+		if (lastfmName == null || lastfmName.isEmpty()) {
+			throw new IllegalStateException("Cannot save User without a lastfmName (it is the primary key)");
+		}
 		DatastoreProvider.get().put(toEntity());
 	}
 
@@ -92,7 +97,7 @@ public class User {
 		Datastore ds = DatastoreProvider.get();
 		Query<Entity> query = Query.newEntityQueryBuilder()
 			.setKind("FilteredArtist")
-			.setFilter(PropertyFilter.eq("owner", this.twitterName))
+			.setFilter(PropertyFilter.eq("owner", this.lastfmName))
 			.build();
 		QueryResults<Entity> results = ds.run(query);
 		List<FilteredArtist> list = new ArrayList<>();

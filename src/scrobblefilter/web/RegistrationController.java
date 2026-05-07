@@ -45,11 +45,14 @@ public class RegistrationController {
 	@RequestMapping(value="register", method=POST)
 	public ModelAndView welcomeUser(HttpServletRequest request, HttpServletResponse response, User user, BindingResult result, Map<String, Object> model)
 	{
+		if (user.getLastfmName() == null || user.getLastfmName().isEmpty()) {
+			model.put("error", "A Last.fm username is required to register.");
+			return new ModelAndView("newuser", "model", model);
+		}
 		user = findOrCreateUser(user);
-		String submittedLastfm = request.getParameter("lastfmName");
-		if (submittedLastfm != null && !submittedLastfm.isEmpty() && user.getLastfmName() == null) {
-			user.setLastfmName(submittedLastfm);
-			user.save();
+		if (user == null) {
+			model.put("error", "A Last.fm username is required to register.");
+			return new ModelAndView("newuser", "model", model);
 		}
 		request.getSession().setAttribute("user", user);
 		model.put("user", user);
@@ -59,7 +62,10 @@ public class RegistrationController {
 	@RequestMapping(value="updateCronSetting", method=POST)
 	public ModelAndView updateCronSetting(HttpServletRequest request, HttpServletResponse response, User user, BindingResult result, Map<String, Object> model)
 	{
-		User foundUser = findOrCreateUser(user);
+		User sessionUser = (User) request.getSession().getAttribute("user");
+		if (sessionUser == null) return new ModelAndView("redirect:/hello/welcome");
+		User foundUser = findUser(sessionUser.getLastfmName());
+		if (foundUser == null) return new ModelAndView("redirect:/hello/welcome");
 		foundUser.setCron(user.isCron());
 		foundUser.save();
 		request.getSession().setAttribute("user", foundUser);
@@ -68,37 +74,30 @@ public class RegistrationController {
 	}
 
 	protected static User findOrCreateUser(User user) {
-		User maybeUser = User.findByName(user.getTwitterName());
+		if (user.getLastfmName() == null || user.getLastfmName().isEmpty()) {
+			return null;
+		}
+		User maybeUser = User.findByLastfmName(user.getLastfmName());
 		if (maybeUser == null) {
 			user.save();
-			log.fine("saved " + user.getTwitterName());
+			log.fine("saved " + user.getLastfmName());
 		} else {
 			user = maybeUser;
-			log.fine("found " + user.getTwitterName());
+			log.fine("found " + user.getLastfmName());
 		}
 		return user;
 	}
 
-	protected static User findUser(String twitterName) {
-		return User.findByName(twitterName);
+	protected static User findUser(String lastfmName) {
+		return User.findByLastfmName(lastfmName);
 	}
 
-	@RequestMapping(value="updateLastfmName", method=POST)
-	public ModelAndView updateLastFm(HttpServletRequest request, HttpServletResponse response, User user, BindingResult result, Map<String, Object> model)
-	{
-		User datastoreuser = findOrCreateUser(user);
-		datastoreuser.setLastfmName(user.getLastfmName());
-		datastoreuser.save();
-		model.put("user", datastoreuser);
-		return new ModelAndView("helloworld", "model", model);
-	}
-
-	@RequestMapping(value="addartist", method={POST,GET})
+@RequestMapping(value="addartist", method={POST,GET})
 	public ModelAndView addArtistToFilter(HttpServletRequest request, HttpServletResponse response, Preferences prefs, BindingResult result, Map<String, Object> model)
 	{
-		User user = findUser(prefs.getTwitterName());
+		User user = findUser(prefs.getLastfmName());
 		if (user == null) return new ModelAndView("newuser");
-		FilteredArtist artist = new FilteredArtist(user.getTwitterName(), user.getLastfmName(), prefs.getArtist());
+		FilteredArtist artist = new FilteredArtist(user.getLastfmName(), prefs.getArtist());
 		user.addFilteredArtist(artist);
 		model.put("user", user);
 		return new ModelAndView("helloworld", "model", model);
@@ -107,7 +106,8 @@ public class RegistrationController {
 	@RequestMapping(value="removeartist", method=GET)
 	public ModelAndView removeArtistFromFilter(HttpServletRequest request, HttpServletResponse response, FilteredArtist artist, BindingResult result, Map<String, Object> model)
 	{
-		User user = findUser(artist.getTwitterName());
+		User user = (User) request.getSession().getAttribute("user");
+		if (user == null) return new ModelAndView("redirect:/hello/welcome");
 		List<FilteredArtist> remaining = user.listAllFilteredArtists().stream()
 			.filter(a -> !artist.getId().equals(a.getId()))
 			.collect(Collectors.toList());

@@ -7,11 +7,12 @@ Map<String, Object> model = (Map<String, Object>)request.getAttribute("model");
 Preferences prefs = model==null?null:(Preferences)model.get("prefs");
 String artist1 = prefs==null?"":prefs.getArtist();
 List<ScrobbledArtist> topArtists = (List<ScrobbledArtist>)model.get("list");
+String greetingName = prefs==null ? "" : (prefs.getTwitterName() != null && !prefs.getTwitterName().isEmpty() ? prefs.getTwitterName() : prefs.getLastfmName());
 %>
 <html>
 <head>
 <link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css">
-<title>Hello, <%=prefs.getTwitterName()%></title>
+<title>Hello, <%=greetingName%></title>
 <style>
 .error {
 color: #D8000C;
@@ -21,13 +22,13 @@ color: #D8000C;
 
 <body>
 <div id=main>
-Hello, <%=prefs.getTwitterName()%>!
+Hello, <%=greetingName%>!
 <br>
 <a href="world">go back</a>
 <br>
 <% if (model!=null && model.get("error")!=null) { %>
 	<div class=error>The tweet failed: <%=model.get("error")%>
-	<br><a href="twittersignin?name=<%=prefs.getTwitterName()%>">Re-link your Twitter account</a>
+	<br><a href="twittersignin?lastfmName=<%=prefs.getLastfmName()%>">Re-link your Twitter account</a>
 	</div>
 <% } %>
 <table>
@@ -42,7 +43,7 @@ Hello, <%=prefs.getTwitterName()%>!
 		</td>
 		<td>
 			<form method=post action=addartist>
-				<input type=hidden name=twitterName value="<%=prefs.getTwitterName()%>"/>
+				<input type=hidden name=lastfmName value="<%=prefs.getLastfmName()%>"/>
 				<input type=hidden name=artist value="<%=artist.getName() %>"/>
 				<input type=submit value="filter this artist"/>
 			</form>
@@ -50,7 +51,7 @@ Hello, <%=prefs.getTwitterName()%>!
 	</tr>
 <% } %>
 </table>
-<a href="tweet?name=<%=prefs.getTwitterName()%>">tweet it</a>
+<a href="tweet?lastfmName=<%=prefs.getLastfmName()%>">tweet it</a>
 </body>
 </div> <!-- main -->
 </html>
