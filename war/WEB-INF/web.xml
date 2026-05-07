@@ -1,27 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
-              http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-         version="2.5"
-         xmlns="http://java.sun.com/xml/ns/javaee">
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+              https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
 
   <!-- Servlets -->
   <!-- Default page to serve -->
 <welcome-file-list>
-    <welcome-file>hello/welcome</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
   <listener>
   		  	<listener-class>scrobblefilter.web.ContextInitializer</listener-class>
   </listener>
-  
-	<filter>
-        <filter-name>ObjectifyFilter</filter-name>
-        <filter-class>com.googlecode.objectify.ObjectifyFilter</filter-class>
-	</filter>
-	<filter-mapping>
-	        <filter-name>ObjectifyFilter</filter-name>
-	        <url-pattern>/*</url-pattern>
-	</filter-mapping>
   
   	<!--  spring servlet -->
 		<servlet>

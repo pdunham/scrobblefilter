@@ -15,6 +15,7 @@ Tell me your twitter handle and we can get started.
 <form method=post action=/hello/register>
 <table>
 <tr><td>Twitter handle</td><td><input type=text name=name></td></tr>
+<tr><td>Last.fm username</td><td><input type=text name=lastfmName></td></tr>
 </table>
 <input type=submit>
 </form>

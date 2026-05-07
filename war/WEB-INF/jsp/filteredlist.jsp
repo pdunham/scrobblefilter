@@ -26,7 +26,9 @@ Hello, <%=prefs.getTwitterName()%>!
 <a href="world">go back</a>
 <br>
 <% if (model!=null && model.get("error")!=null) { %>
-	<div class=error>The tweet failed: <%=model.get("error")%></div>
+	<div class=error>The tweet failed: <%=model.get("error")%>
+	<br><a href="twittersignin?name=<%=prefs.getTwitterName()%>">Re-link your Twitter account</a>
+	</div>
 <% } %>
 <table>
 <tr><th>name</th><th>play count</th><th></th></tr>

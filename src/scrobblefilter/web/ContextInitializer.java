@@ -1,18 +1,26 @@
 package scrobblefilter.web;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import com.googlecode.objectify.ObjectifyService;
+import java.io.InputStream;
 
-import scrobblefilter.model.FilteredArtist;
-import scrobblefilter.model.User;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+
+import scrobblefilter.AppConfig;
 
 public class ContextInitializer implements ServletContextListener {
 
 	 public void contextDestroyed(ServletContextEvent arg) {}
-	
+
 	 public void contextInitialized(ServletContextEvent arg) {
-		 ObjectifyService.register(User.class);
-		 ObjectifyService.register(FilteredArtist.class);
+		 try (InputStream in = arg.getServletContext()
+				 .getResourceAsStream("/WEB-INF/scrobblefilter.properties")) {
+			 if (in != null) {
+				 AppConfig.load(in);
+			 }
+		 } catch (Exception e) {
+			 System.err.println("STARTUP ERROR: " + e);
+			 e.printStackTrace();
+			 throw new RuntimeException("Failed to load scrobblefilter.properties", e);
+		 }
 	 }
 }

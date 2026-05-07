@@ -1,0 +1,2 @@
+#!include:.gitignore
+!war/WEB-INF/scrobblefilter.properties
