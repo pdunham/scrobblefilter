@@ -1,2 +1,6 @@
 #!include:.gitignore
 !war/WEB-INF/scrobblefilter.properties
+# twitter4j.properties is .gitignored (so secrets stay out of git history) but
+# Cloud Build needs it in the upload to bake into the Docker image. Long-term
+# fix: mount via Secret Manager (twitter4j-properties secret already exists).
+!war/WEB-INF/twitter4j.properties

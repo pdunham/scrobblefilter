@@ -85,13 +85,15 @@ public class MigrationController {
 			}
 
 			// Fresh migration: create new user keyed by lastfmName, copy properties, migrate artists.
+			// Note: Objectify-era entities can have properties set to null (not just absent),
+			// so coerce every string getter through str() to avoid Datastore.set rejecting null.
 			Entity newUser = Entity.newBuilder(newKey)
-				.set("twitterName", oldKeyName)
+				.set("twitterName", oldKeyName != null ? oldKeyName : "")
 				.set("lastfmName",  storedLastfm)
-				.set("token",       oldUser.contains("token")       ? oldUser.getString("token")       : "")
-				.set("tokenSecret", oldUser.contains("tokenSecret") ? oldUser.getString("tokenSecret") : "")
-				.set("preface",     oldUser.contains("preface")     ? oldUser.getString("preface")     : "")
-				.set("prefixText",  oldUser.contains("prefixText")  ? oldUser.getString("prefixText")  : "")
+				.set("token",       str(oldUser, "token"))
+				.set("tokenSecret", str(oldUser, "tokenSecret"))
+				.set("preface",     str(oldUser, "preface"))
+				.set("prefixText",  str(oldUser, "prefixText"))
 				.set("useNumbers",  oldUser.contains("useNumbers")  && oldUser.getBoolean("useNumbers"))
 				.set("isRandom",    oldUser.contains("isRandom")    && oldUser.getBoolean("isRandom"))
 				.set("cron",        oldUser.contains("cron")        && oldUser.getBoolean("cron"))
@@ -118,6 +120,12 @@ public class MigrationController {
 		model.put("mergedArtistCount", mergedArtistCount);
 		model.put("deletedArtistCount", deletedArtistCount);
 		return new ModelAndView("admin/migrate", "model", model);
+	}
+
+	private static String str(Entity e, String prop) {
+		if (!e.contains(prop)) return "";
+		String v = e.getString(prop);
+		return v != null ? v : "";
 	}
 
 	private int deleteFilteredArtistsForOwner(Datastore ds, String owner) {
