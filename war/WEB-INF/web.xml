@@ -26,27 +26,18 @@
           <url-pattern>/hello/*</url-pattern>
          </servlet-mapping>
          
- <security-role>  
-    <role-name>admin</role-name>  
-</security-role>  
-<security-role>  
-    <role-name>user</role-name>  
-</security-role>          
-  
-  <security-constraint>
-        <web-resource-collection>
-            <url-pattern>/hello/cron/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>admin</role-name>
-        </auth-constraint>
-    </security-constraint>
-  <security-constraint>
-        <web-resource-collection>
-            <url-pattern>/hello/admin/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>admin</role-name>
-        </auth-constraint>
-    </security-constraint>
+ <security-role>
+    <role-name>admin</role-name>
+</security-role>
+<security-role>
+    <role-name>user</role-name>
+</security-role>
+
+  <!--
+    /hello/admin/* and /hello/cron/* are gated programmatically in the controllers
+    via X-Admin-Token / X-Cron-Token headers compared against MIGRATE_TOKEN /
+    CRON_TOKEN env vars (sourced from Secret Manager on Cloud Run). The classic
+    GAE security-constraint approach doesn't work on Cloud Run — Tomcat has no
+    realm configured, so admin/cron requests would 403 unconditionally.
+  -->
 </web-app>

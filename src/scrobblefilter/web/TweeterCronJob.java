@@ -1,8 +1,12 @@
 package scrobblefilter.web;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import scrobblefilter.model.User;
 import scrobblefilter.net.ScrobbleTweeter;
@@ -30,8 +34,11 @@ public class TweeterCronJob {
 	
 	
 	@RequestMapping(value="cron/sendalltweets", method = GET)
-	public void sendAllTweets() {
-		
+	public void sendAllTweets(HttpServletRequest req, HttpServletResponse res) throws IOException {
+		if (!AdminAuth.valid(req, "CRON_TOKEN", "X-Cron-Token")) {
+			res.sendError(HttpServletResponse.SC_FORBIDDEN, "forbidden");
+			return;
+		}
 		List<User> users = userFetcher.fetchUsersForCronJob();
 		log.info("fetched " + users.size() + " users");
 		if (users ==null) return;
@@ -46,7 +53,11 @@ public class TweeterCronJob {
 	}
 
 	@RequestMapping(value="cron/listallcronmembers", method = GET)
-	public ModelAndView listAllCronUSers(Map<String, Object> model) {
+	public ModelAndView listAllCronUSers(HttpServletRequest req, HttpServletResponse res, Map<String, Object> model) throws IOException {
+		if (!AdminAuth.valid(req, "CRON_TOKEN", "X-Cron-Token")) {
+			res.sendError(HttpServletResponse.SC_FORBIDDEN, "forbidden");
+			return null;
+		}
 		List<User> users = userFetcher.fetchUsersForCronJob();
 		model.put("users", users);
 		return new ModelAndView("cron/sendalltweets","model",model);

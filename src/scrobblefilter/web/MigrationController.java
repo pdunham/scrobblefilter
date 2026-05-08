@@ -2,10 +2,14 @@ package scrobblefilter.web;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +30,11 @@ public class MigrationController {
 	private static final Logger log = Logger.getLogger(MigrationController.class.getName());
 
 	@RequestMapping(value = "admin/migrate", method = GET)
-	public ModelAndView migrate(Map<String, Object> model) {
+	public ModelAndView migrate(HttpServletRequest req, HttpServletResponse res, Map<String, Object> model) throws IOException {
+		if (!AdminAuth.valid(req, "MIGRATE_TOKEN", "X-Admin-Token")) {
+			res.sendError(HttpServletResponse.SC_FORBIDDEN, "forbidden");
+			return null;
+		}
 		Datastore ds = DatastoreProvider.get();
 		List<String> migrated = new ArrayList<>();
 		List<String> merged = new ArrayList<>();
