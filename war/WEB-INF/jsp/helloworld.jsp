@@ -4,6 +4,7 @@
 <%@page import="scrobblefilter.model.FilteredArtist"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.List"%>
+<%@page import="java.net.URLEncoder"%>
 <html>
 <head>
 <link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css">
@@ -60,7 +61,7 @@ if (!artists.isEmpty()) { %>
 <% }
 for (FilteredArtist artist : artists) {
 %>
-<tr><td><%=artist.getArtistName()%></td><td><a href="removeartist?id=<%=artist.getId()%>">remove</a></td></tr>
+<tr><td><%=artist.getArtistName()%></td><td><a href="removeartist?id=<%=URLEncoder.encode(artist.getId(), "UTF-8")%>">remove</a></td></tr>
 <% } %>
 </table>
 <a href="filter?lastfmName=<%=user.getLastfmName()%>">see the filtered list</a>

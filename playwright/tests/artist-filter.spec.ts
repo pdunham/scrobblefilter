@@ -43,6 +43,19 @@ test('removing an artist removes it from the filtered artists table', async ({ p
   await expect(page.locator('body')).not.toContainText('Radiohead');
 });
 
+test('removing an artist whose name contains an ampersand works', async ({ page }) => {
+  // Regression: the remove link embeds the artist name (id = lastfm:name).
+  // An unescaped "&" splits the query string, so removal silently failed.
+  // The JSP now URL-encodes the id; this verifies the round-trip.
+  await setupUser(page, uniqueHandle(), uniqueLastfm());
+  await addArtist(page, 'Florence & the Machine');
+  await expect(filteredArtistsTable(page)).toContainText('Florence & the Machine');
+
+  await page.click('a[href*="removeartist"]');
+
+  await expect(page.locator('body')).not.toContainText('Florence & the Machine');
+});
+
 test('adding multiple artists shows all of them in the table', async ({ page }) => {
   await setupUser(page, uniqueHandle(), uniqueLastfm());
 
