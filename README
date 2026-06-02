@@ -43,3 +43,57 @@ Run smoke tests only (no Datastore emulator needed):
 
 See playwrightplan.md for a full description of the test scenarios and
 infrastructure setup.
+
+## Deploy (Cloud Run)
+
+The app runs on Cloud Run in project `scrobblefilter`, region `us-central1`,
+as the service `scrobblefilter`. Images live in Artifact Registry at
+`us-central1-docker.pkg.dev/scrobblefilter/scrobblefilter/app`.
+
+Prerequisites: Google Cloud SDK authenticated as a project owner/editor
+(`gcloud auth login`), with the project set (`gcloud config set project scrobblefilter`).
+
+1. Build the image in the cloud and push it to Artifact Registry (Cloud Build
+   uses the Dockerfile, so no local Docker is required):
+
+       gcloud builds submit --tag us-central1-docker.pkg.dev/scrobblefilter/scrobblefilter/app:latest
+
+2. Tag the image with the git SHA for traceability (optional but recommended):
+
+       gcloud artifacts docker tags add \
+         us-central1-docker.pkg.dev/scrobblefilter/scrobblefilter/app:latest \
+         us-central1-docker.pkg.dev/scrobblefilter/scrobblefilter/app:$(git rev-parse --short HEAD)
+
+3. Deploy. The service's existing secret bindings (`MIGRATE_TOKEN`,
+   `CRON_TOKEN`) are preserved automatically, so they don't need to be
+   re-specified on a routine redeploy:
+
+       gcloud run deploy scrobblefilter \
+         --image us-central1-docker.pkg.dev/scrobblefilter/scrobblefilter/app:latest \
+         --region us-central1 \
+         --quiet
+
+4. Verify the new revision:
+
+       SVC_URL=$(gcloud run services describe scrobblefilter --region=us-central1 --format='value(status.url)')
+       curl -s -o /dev/null -w 'welcome: %{http_code}\n' "$SVC_URL/hello/welcome"
+       # admin endpoint must reject an unauthenticated request:
+       curl -s -o /dev/null -w 'no-token: %{http_code}\n' "$SVC_URL/hello/admin/migrate"
+
+   Expect `welcome: 200` and `no-token: 403`.
+
+The admin/cron secrets were created once with `gcloud secrets create
+migrate-token` / `cron-token` and first bound to the service with
+`gcloud run deploy ... --update-secrets MIGRATE_TOKEN=migrate-token:latest,CRON_TOKEN=cron-token:latest`.
+Only repeat that `--update-secrets` step if a binding is removed or a new
+secret is added.
+
+### Data migration (one-time, only when the entity schema changes)
+
+`/hello/admin/migrate` re-keys legacy entities and is idempotent. It is gated
+by the `MIGRATE_TOKEN` secret. It is not part of a routine code deploy — run it
+only when a schema migration is required:
+
+    TOKEN=$(gcloud secrets versions access latest --secret=migrate-token)
+    SVC_URL=$(gcloud run services describe scrobblefilter --region=us-central1 --format='value(status.url)')
+    curl -s -H "X-Admin-Token: $TOKEN" "${SVC_URL}/hello/admin/migrate" -w '\nHTTP %{http_code}\n'
