@@ -4,14 +4,13 @@ All notable changes to ScrobbleFilter on the `master` branch, summarized by
 date. Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 The project does not use versioned releases, so entries are grouped by date.
 
-## Unreleased
+## 2026-06-02
 
 - Add a `specs/` "constitution": `mission.md`, `tech-stack.md`, and `roadmap.md`
   (the roadmap includes planned Bluesky / multi-platform posting support).
 - Add this `CHANGELOG.md`.
-
-## 2026-06-02
-
+- Refresh `CLAUDE.md` to describe the current Cloud Run / Spring 6 / Jakarta /
+  Cloud Datastore stack (it had still described the pre-migration GAE stack).
 - Document the full Cloud Run deploy runbook in the `README` (Cloud Build →
   Artifact Registry → `gcloud run deploy`, verification, and secret setup).
 
