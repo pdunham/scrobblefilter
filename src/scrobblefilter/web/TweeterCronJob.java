@@ -49,7 +49,8 @@ public class TweeterCronJob {
 				// entity key (always present) and stays stable as we add per-platform
 				// posting (bluesky, fb, ...); twitterName may be null for legacy users
 				// whose Twitter screen name was never captured.
-				log.info("posted on twitter as " + u.getTwitterName() + " for " + u.getLastfmName());
+				log.info("posted on twitter as " + (u.getTwitterName() != null ? u.getTwitterName() : "?")
+						+ " for " + u.getLastfmName());
 			} catch (TwitterException e) {
 				log.warning(e.getMessage());
 			}
