@@ -45,7 +45,10 @@ public class TweeterCronJob {
 		for (User u : users) {
 			try {
 				tweeter.doTweet(u);
-				log.info("sent tweet for "+u.getName());
+				// Log the lastfmName (the entity key, always present) rather than
+				// getName()/twitterName, which is null for legacy users whose
+				// Twitter screen name was never captured.
+				log.info("sent tweet for " + u.getLastfmName());
 			} catch (TwitterException e) {
 				log.warning(e.getMessage());
 			}
