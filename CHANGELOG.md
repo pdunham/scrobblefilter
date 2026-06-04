@@ -23,6 +23,16 @@ The project does not use versioned releases, so entries are grouped by date.
 - Log `lastfmName` (the entity key, always present) instead of `twitterName` in
   the cron tweet loop, so a legacy user whose Twitter screen name was never
   captured no longer logs as `sent tweet for null`.
+- **Bluesky support, Phase 1 — posting abstraction (no behavior change).**
+  Introduce a `SocialPoster` interface (`platform` / `isConnected` /
+  `isEnabledFor` / `post`) with `SocialPostException`, and a `StatusComposer`
+  that builds the post text once per run (so Last.fm is fetched once regardless
+  of target count). `ScrobbleTweeter` → `TwitterPoster` implementing the
+  interface; `TweeterController` / `TweeterCronJob` →
+  `SocialPostController` / `SocialPostCronJob` (class renames only — URLs
+  unchanged), now fanning out over the enabled posters. Latent fix: a per-user
+  compose failure (e.g. <3 artists) no longer aborts the whole cron batch.
+  Added `StatusComposerTest`. Full plan in `specs/blueskyplan.md`.
 
 ## 2026-06-02
 
