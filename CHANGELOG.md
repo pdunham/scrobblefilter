@@ -4,6 +4,17 @@ All notable changes to ScrobbleFilter on the `master` branch, summarized by
 date. Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 The project does not use versioned releases, so entries are grouped by date.
 
+## 2026-06-04
+
+- Schedule the weekly tweet with **Cloud Scheduler**. A `sendalltweets` HTTP job
+  in `us-central1` calls `GET /hello/cron/sendalltweets` every Tuesday 10:00
+  `America/Chicago` with the `CRON_TOKEN` as an `X-Cron-Token` header, restoring
+  the cadence lost when the Cloud Run migration made GAE's `cron.xml` a no-op.
+  Retries are disabled (the endpoint is not idempotent). Documented the create /
+  run / pause commands in the `README`.
+- Delete the now-dead `war/WEB-INF/cron.xml` (silently ignored under Cloud Run;
+  Cloud Scheduler is the source of truth for the cadence).
+
 ## 2026-06-02
 
 - Add a `specs/` "constitution": `mission.md`, `tech-stack.md`, and `roadmap.md`

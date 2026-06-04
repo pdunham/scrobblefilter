@@ -32,11 +32,13 @@ Browser → HelloController → NetworkedScrobbleListFetcher → Last.fm API (7-
 
 **Cron job flow (weekly tweet):**
 ```
-scheduled HTTP request → /hello/cron/sendalltweets (gated by CRON_TOKEN)
+Cloud Scheduler job `sendalltweets` (us-central1, Tue 10:00 America/Chicago)
+→ GET /hello/cron/sendalltweets (gated by CRON_TOKEN via X-Cron-Token header)
 → TweeterCronJob → CronUserFetcher (all users with cron=true)
 → ScrobbleTweeter.doTweet() → builds tweet string → Twitter4J → posts status
 ```
-Note: GAE's `cron.xml` scheduler does **not** fire under Cloud Run. A Cloud Scheduler job invoking the cron endpoint is a planned roadmap item (`specs/roadmap.md`).
+Note: GAE's `cron.xml` does **not** fire under Cloud Run, so the schedule is a
+Cloud Scheduler job that calls the cron endpoint (see the README deploy runbook).
 
 **Key source packages under `src/scrobblefilter/`:**
 - `web/` — Spring MVC controllers (`HelloController`, `RegistrationController`, `TwitterSignInController`, `TweeterController`, `MigrationController`), `TweeterCronJob`, and `AdminAuth` (token gating)

@@ -12,6 +12,9 @@
 - Gated `/hello/admin/*` and `/hello/cron/*` on Secret Manager tokens.
 - Fixed remove-artist failing for names containing an ampersand (URL encoding).
 - Documented the Cloud Run deploy runbook in the README.
+- Added a **Cloud Scheduler** job for the weekly tweet (Tue 10:00
+  America/Chicago, authenticated with `CRON_TOKEN`), restoring the schedule that
+  GAE's `cron.xml` no longer provides under Cloud Run.
 
 ---
 
@@ -19,10 +22,6 @@
 
 These finish the Cloud Run migration and harden what already exists.
 
-- **Cloud Scheduler for the weekly tweet.** GAE's `cron.xml` is silently ignored
-  on Cloud Run, so the weekly post does not currently fire on a schedule. Add a
-  Cloud Scheduler job that makes an authenticated request to
-  `/hello/cron/sendalltweets` using the existing `CRON_TOKEN`.
 - **Move `twitter4j.properties` to Secret Manager.** OAuth consumer secrets are
   currently baked into the image. Mount them from Secret Manager (volume or env)
   so no credentials live in the container. (Aligns with mission principle 4.)
