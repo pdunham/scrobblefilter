@@ -1,48 +1,63 @@
 package scrobblefilter.net;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import scrobblefilter.model.ScrobbledArtist;
 import scrobblefilter.model.User;
-import scrobblefilter.net.impl.NetworkedScrobbleListFetcher;
-import twitter4j.TwitterException;
 
-public class ScrobbleTweeter {
+/**
+ * {@link SocialPoster} for Twitter/X. Posts via the v2 tweets endpoint signed
+ * with a hand-rolled OAuth 1.0a header ({@link OAuth1Helper}).
+ *
+ * Formerly {@code ScrobbleTweeter}; the status-text composition moved to
+ * {@link StatusComposer} so this class is purely the Twitter posting target.
+ */
+public class TwitterPoster implements SocialPoster {
 
-	private static final Logger log = Logger.getLogger(ScrobbleTweeter.class.getName());
+	private static final Logger log = Logger.getLogger(TwitterPoster.class.getName());
 	private static final String TWEET_URL = "https://api.twitter.com/2/tweets";
 
-	ScrobbleListFetcher scrobbleFetcher = new NetworkedScrobbleListFetcher();
+	@Override
+	public String platform() {
+		return "twitter";
+	}
 
-	public void doTweet(User user) throws TwitterException {
-		List<ScrobbledArtist> scrobbles = extractFilteredList(user.getLastfmName(), user.getFilteredArtistAsStrings());
-		String text = constructTweet(scrobbles);
-		if (user.getToken() == null || user.getTokenSecret() == null)
-			throw new TwitterException("token or secret null");
+	@Override
+	public boolean isConnected(User user) {
+		return user.getToken() != null && user.getTokenSecret() != null;
+	}
+
+	@Override
+	public boolean isEnabledFor(User user) {
+		return isConnected(user) && user.isCron();
+	}
+
+	@Override
+	public void post(User user, String statusText) throws SocialPostException {
+		if (!isConnected(user)) {
+			throw new SocialPostException("token or secret null");
+		}
 		try {
 			Properties props = loadTwitterProperties();
 			String consumerKey = props.getProperty("twitter4j.oauth.consumerKey");
 			String consumerSecret = props.getProperty("twitter4j.oauth.consumerSecret");
-			postTweet(text, consumerKey, consumerSecret, user.getToken(), user.getTokenSecret());
-		} catch (TwitterException e) {
+			postTweet(statusText, consumerKey, consumerSecret, user.getToken(), user.getTokenSecret());
+		} catch (SocialPostException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new TwitterException("Failed to send tweet: " + e.getMessage());
+			throw new SocialPostException("Failed to send tweet: " + e.getMessage());
 		}
 	}
 
-	private Properties loadTwitterProperties() throws IOException {
+	private Properties loadTwitterProperties() throws Exception {
 		Properties props = new Properties();
 		try (InputStream is = getClass().getClassLoader().getResourceAsStream("twitter4j.properties")) {
 			props.load(is);
@@ -79,31 +94,11 @@ public class ScrobbleTweeter {
 		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 		log.info("Tweet response: " + response.statusCode() + " " + response.body());
 		if (response.statusCode() < 200 || response.statusCode() >= 300) {
-			throw new TwitterException("Tweet API returned " + response.statusCode() + ": " + response.body());
+			throw new SocialPostException("Tweet API returned " + response.statusCode() + ": " + response.body());
 		}
 	}
 
 	private String escapeJson(String text) {
 		return text.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
-	}
-
-	public List<ScrobbledArtist> extractFilteredList(String lastfmName, List<String> filteredArtists) {
-		if (lastfmName == null) log.warning("in extractFilteredList lastfmname is null");
-		if (filteredArtists == null) log.warning("in extractFilteredList filteredArtist is null");
-		List<ScrobbledArtist> artists = ScrobbleListParser.parseList(scrobbleFetcher.fetchList(lastfmName));
-		for (String filtered : filteredArtists) {
-			artists.remove(new ScrobbledArtist(filtered, 0));
-		}
-		return artists;
-	}
-
-	public String constructTweet(List<ScrobbledArtist> scrobbles) {
-		String result = "I've been listening to";
-		for (int i = 0; i < 3; i++) {
-			ScrobbledArtist scrobble = scrobbles.get(i);
-			result = result + (i == 2 ? " and " : " ") + scrobble.getName()
-					+ (i == 2 ? "." : ",");
-		}
-		return result;
 	}
 }
