@@ -88,6 +88,44 @@ migrate-token` / `cron-token` and first bound to the service with
 Only repeat that `--update-secrets` step if a binding is removed or a new
 secret is added.
 
+### Scheduled weekly tweet (Cloud Scheduler)
+
+The weekly post (`GET /hello/cron/sendalltweets`) is triggered by a Cloud
+Scheduler job — Cloud Run has no built-in scheduler, so GAE's old
+`cron.xml` no longer applies. The job sends the `CRON_TOKEN` secret as an
+`X-Cron-Token` header (the same in-app gate as `AdminAuth`); the public
+service URL is otherwise unauthenticated, so the header is the auth.
+
+Created once with (the token is read from Secret Manager so it isn't typed
+out, but note it is stored in the job config as a plaintext header — rotate
+`cron-token` and re-run this if it leaks):
+
+    gcloud scheduler jobs create http sendalltweets \
+      --location=us-central1 \
+      --schedule="0 10 * * 2" \
+      --time-zone="America/Chicago" \
+      --uri="https://scrobblefilter-mzrsyx44yq-uc.a.run.app/hello/cron/sendalltweets" \
+      --http-method=GET \
+      --headers="X-Cron-Token=$(gcloud secrets versions access latest --secret=cron-token)" \
+      --attempt-deadline=600s \
+      --max-retry-attempts=0 \
+      --description="Weekly ScrobbleFilter top-artists tweet (replaces legacy cron.xml)"
+
+Schedule: every Tuesday 10:00 `America/Chicago` (matching the retired
+`cron.xml`). Retries are disabled because the endpoint is not idempotent — a
+mid-run retry would double-post for users already tweeted.
+
+Operate it with:
+
+    gcloud scheduler jobs describe sendalltweets --location=us-central1
+    gcloud scheduler jobs run     sendalltweets --location=us-central1   # force a run now (posts real tweets!)
+    gcloud scheduler jobs pause   sendalltweets --location=us-central1
+    gcloud scheduler jobs resume  sendalltweets --location=us-central1
+
+If `cron-token` is rotated, re-run the `create` command above as
+`gcloud scheduler jobs update http sendalltweets ... --headers=...` to refresh
+the stored header.
+
 ### Data migration (one-time, only when the entity schema changes)
 
 `/hello/admin/migrate` re-keys legacy entities and is idempotent. It is gated

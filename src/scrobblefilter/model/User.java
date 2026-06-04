@@ -30,8 +30,10 @@ public class User {
 		u.lastfmName  = e.getKey().getName();
 		String rawTwitter = e.contains("twitterName") ? e.getString("twitterName") : null;
 		u.twitterName = (rawTwitter != null && !rawTwitter.isEmpty()) ? rawTwitter : null;
-		u.token       = e.contains("token")       ? e.getString("token")       : null;
-		u.tokenSecret = e.contains("tokenSecret") ? e.getString("tokenSecret") : null;
+		String rawToken = e.contains("token") ? e.getString("token") : null;
+		u.token       = (rawToken != null && !rawToken.isEmpty()) ? rawToken : null;
+		String rawTokenSecret = e.contains("tokenSecret") ? e.getString("tokenSecret") : null;
+		u.tokenSecret = (rawTokenSecret != null && !rawTokenSecret.isEmpty()) ? rawTokenSecret : null;
 		u.preface     = e.contains("preface")     ? e.getString("preface")     : null;
 		u.prefixText  = e.contains("prefixText")  ? e.getString("prefixText")  : null;
 		u.useNumbers  = e.contains("useNumbers")  && e.getBoolean("useNumbers");
