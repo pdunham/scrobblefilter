@@ -14,6 +14,15 @@ The project does not use versioned releases, so entries are grouped by date.
   run / pause commands in the `README`.
 - Delete the now-dead `war/WEB-INF/cron.xml` (silently ignored under Cloud Run;
   Cloud Scheduler is the source of truth for the cadence).
+- Coerce empty `token` / `tokenSecret` to `null` when loading a `User`.
+  `toEntity` persists missing OAuth tokens as `""`, so the `getToken() == null`
+  guard in `ScrobbleTweeter.doTweet` never tripped for a token-less user and we
+  would attempt a guaranteed-401 Twitter call instead of skipping them. Now
+  matches the existing `twitterName` coercion; added `UserTest` covering the
+  empty / absent / present cases.
+- Log `lastfmName` (the entity key, always present) instead of `twitterName` in
+  the cron tweet loop, so a legacy user whose Twitter screen name was never
+  captured no longer logs as `sent tweet for null`.
 
 ## 2026-06-02
 
