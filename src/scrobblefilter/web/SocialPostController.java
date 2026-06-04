@@ -18,9 +18,9 @@ import scrobblefilter.net.SocialPoster;
 import scrobblefilter.net.StatusComposer;
 
 @Controller
-public class TweeterController {
+public class SocialPostController {
 
-	private static final Logger log = Logger.getLogger(TweeterController.class.getName());
+	private static final Logger log = Logger.getLogger(SocialPostController.class.getName());
 
 	@Autowired
 	List<SocialPoster> posters;

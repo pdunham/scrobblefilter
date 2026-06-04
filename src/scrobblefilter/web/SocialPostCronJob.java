@@ -23,7 +23,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 
 @Controller
-public class TweeterCronJob {
+public class SocialPostCronJob {
 
 	@Autowired
 	UserFetcher userFetcher;
@@ -34,7 +34,7 @@ public class TweeterCronJob {
 	@Autowired
 	StatusComposer composer;
 
-	private static final Logger log = Logger.getLogger(TweeterCronJob.class.getName());
+	private static final Logger log = Logger.getLogger(SocialPostCronJob.class.getName());
 
 	
 	
