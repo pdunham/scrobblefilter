@@ -9,9 +9,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import scrobblefilter.model.User;
-import scrobblefilter.net.ScrobbleTweeter;
+import scrobblefilter.net.SocialPoster;
+import scrobblefilter.net.SocialPostException;
+import scrobblefilter.net.StatusComposer;
 import scrobblefilter.das.UserFetcher;
-import twitter4j.TwitterException;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +25,15 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @Controller
 public class TweeterCronJob {
 
-	@Autowired 
+	@Autowired
 	UserFetcher userFetcher;
-	
-	ScrobbleTweeter tweeter = new ScrobbleTweeter();
-	
+
+	@Autowired
+	List<SocialPoster> posters;
+
+	@Autowired
+	StatusComposer composer;
+
 	private static final Logger log = Logger.getLogger(TweeterCronJob.class.getName());
 
 	
@@ -43,16 +48,27 @@ public class TweeterCronJob {
 		log.info("fetched " + users.size() + " users");
 		if (users ==null) return;
 		for (User u : users) {
+			String statusText;
 			try {
-				tweeter.doTweet(u);
-				// Log both the platform handle and the lastfmName. lastfmName is the
-				// entity key (always present) and stays stable as we add per-platform
-				// posting (bluesky, fb, ...); twitterName may be null for legacy users
-				// whose Twitter screen name was never captured.
-				log.info("posted on twitter as " + (u.getTwitterName() != null ? u.getTwitterName() : "?")
-						+ " for " + u.getLastfmName());
-			} catch (TwitterException e) {
-				log.warning(e.getMessage());
+				statusText = composer.compose(u);
+			} catch (Exception e) {
+				// One user's compose failure (e.g. <3 artists, Last.fm hiccup) must
+				// not abort the whole batch.
+				log.warning("could not compose status for " + u.getLastfmName() + ": " + e.getMessage());
+				continue;
+			}
+			for (SocialPoster poster : posters) {
+				if (!poster.isEnabledFor(u)) continue;
+				try {
+					poster.post(u, statusText);
+					// lastfmName is the entity key (always present); twitterName may be
+					// null for legacy users whose screen name was never captured.
+					log.info("posted on " + poster.platform() + " as "
+							+ (u.getTwitterName() != null ? u.getTwitterName() : "?")
+							+ " for " + u.getLastfmName());
+				} catch (SocialPostException e) {
+					log.warning(poster.platform() + " post failed for " + u.getLastfmName() + ": " + e.getMessage());
+				}
 			}
 		}
 	}
