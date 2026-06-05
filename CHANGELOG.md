@@ -23,6 +23,10 @@ The project does not use versioned releases, so entries are grouped by date.
   and never need indexing); `blueskyCron` stays indexed for the upcoming cron
   query. Backward-compatible — existing entities default to null/false, no
   migration needed. Extended `UserTest` with empty/absent/present cases.
+- **Bluesky support, Phase 4a — JOSE dependency.** Add `nimbus-jose-jwt` (a
+  normal Maven dependency, not a vendored JAR) for the ES256 signing the AT
+  Protocol OAuth DPoP proofs require. Smoke test confirms ES256 sign/verify works
+  in this JDK.
 
 ## 2026-06-04
 

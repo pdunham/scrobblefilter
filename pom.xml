@@ -97,6 +97,14 @@
             <scope>system</scope>
             <systemPath>${lib.dir}/twitter4j-core-3.0.3.jar</systemPath>
         </dependency>
+
+        <!-- Nimbus JOSE+JWT: ES256 signing for AT Protocol OAuth DPoP proofs.
+             A normal Maven Central artifact, so no vendored JAR needed. -->
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>9.40</version>
+        </dependency>
     </dependencies>
 
     <build>
