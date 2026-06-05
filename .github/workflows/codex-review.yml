@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
 
       - name: Get PR Diff
-        run: git diff origin/${{ github.base_ref }} origin/${{ github.head_ref }} > pr.diff
+        run: git diff origin/${{ github.base_ref }}...origin/${{ github.head_ref }} > pr.diff
 
       - name: OpenAI Review
         env:
