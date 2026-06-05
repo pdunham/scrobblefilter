@@ -4,6 +4,18 @@ All notable changes to ScrobbleFilter on the `master` branch, summarized by
 date. Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 The project does not use versioned releases, so entries are grouped by date.
 
+## 2026-06-05
+
+- **Bluesky support, Phase 2 — credential encryption.** Add `CredentialCrypto`
+  (`scrobblefilter.util`), AES-256-GCM authenticated encryption for per-user
+  secrets stored in Datastore (the upcoming Bluesky OAuth refresh token + DPoP
+  private key). Random 96-bit IV per encryption; wire-format is
+  `base64(iv ‖ ciphertext ‖ tag)`. The 256-bit key comes from a `CRED_ENC_KEY`
+  env var (base64), sourced from Secret Manager like `CRON_TOKEN`. Added
+  `CredentialCryptoTest` (round-trip, randomized IV, tamper rejection, wrong-key
+  rejection, key-length validation). Not yet wired into Spring — that waits
+  until `CRED_ENC_KEY` is plumbed into the runtime/test environment.
+
 ## 2026-06-04
 
 - Schedule the weekly tweet with **Cloud Scheduler**. A `sendalltweets` HTTP job
