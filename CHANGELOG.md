@@ -51,6 +51,19 @@ The project does not use versioned releases, so entries are grouped by date.
   `TokenSet` holds the returned tokens/DID/scope. Unit-tested (PAR params,
   nonce-retry verified by decoding the retried proof, code exchange, refresh,
   error). Not yet wired into the app.
+- **Bluesky support, Phase 4e — client metadata + crypto wiring.** Serve the
+  OAuth public-client document at `/hello/client-metadata.json`
+  (`BlueskyMetadataController`; `client_id`/`redirect_uri` derived from the
+  request, honouring `X-Forwarded-Proto`; `token_endpoint_auth_method=none`,
+  `dpop_bound_access_tokens=true`). Wire `CredentialCryptoProvider` — a lazy
+  holder so a missing `CRED_ENC_KEY` surfaces only on first Bluesky use, never at
+  app boot or on the Twitter path. New Playwright spec asserts the metadata
+  document.
+- **Test harness: build fresh, no stale container.** The Playwright app server now
+  rebuilds the image via an npm `pretest` hook (which also clears a leftover
+  `scrobblefilter-e2e` container) and runs with `reuseExistingServer:false`, so the
+  suite always exercises current code instead of silently reusing a stale
+  container left on `:8080`.
 
 ## 2026-06-04
 

@@ -30,21 +30,27 @@ export default defineConfig({
       port: 8081,
       reuseExistingServer: true,
     },
-    // 3. App in Docker — must be pre-built: docker build -t scrobblefilter .
-    //    DATASTORE_EMULATOR_HOST and LASTFM_BASE_URL redirect the app to local stubs
+    // 3. App in Docker. The image is rebuilt from current source by the `pretest`
+    //    npm hook (which also removes any leftover scrobblefilter-e2e container),
+    //    so this is a single directly-spawned `docker run` that Playwright can
+    //    cleanly stop on teardown. reuseExistingServer:false guarantees the suite
+    //    runs against the freshly built image, never a stale container left on
+    //    :8080. DATASTORE_EMULATOR_HOST and LASTFM_BASE_URL redirect to local stubs.
     {
       command: [
-        'docker run --rm -p 8080:8080',
+        'docker run --rm --name scrobblefilter-e2e -p 8080:8080',
         '-e DATASTORE_EMULATOR_HOST=http://host.docker.internal:8081',
         '-e LASTFM_BASE_URL=http://host.docker.internal:9090/2.0/?',
         '-e GOOGLE_CLOUD_PROJECT=scrobblefilter',
+        // Test-only AES-256 key (base64 32 bytes) for CredentialCrypto; never used in prod.
+        '-e CRED_ENC_KEY=JfDfFR5fa0QxCKSTR8S8JJonXCQPRdXTG/5G+dqYHs4=',
         'scrobblefilter',
       ].join(' '),
       // Use url (not port) so Playwright waits for the app to be fully
       // deployed, not just for Tomcat's TCP port to open.
       url: 'http://localhost:8080/hello/welcome',
-      reuseExistingServer: true,
-      timeout: 60_000,
+      reuseExistingServer: false,
+      timeout: 90_000,
     },
   ],
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
