@@ -35,6 +35,13 @@ The project does not use versioned releases, so entries are grouped by date.
   the two entry points are overridable via `BLUESKY_HANDLE_RESOLVER_URL` /
   `BLUESKY_PLC_DIRECTORY_URL`. Unit-tested against canned JSON (full chain,
   `did:web`, and error paths). Not yet wired into the app.
+- **Bluesky support, Phase 4c — OAuth crypto primitives.** Add the DPoP/PKCE
+  building blocks (`scrobblefilter.net.bluesky`): `DpopProofFactory` (ES256
+  `dpop+jwt` proofs with `htm`/`htu`/`jti`/`iat`, plus `nonce` and access-token
+  `ath` when supplied), `DpopKeys` (per-account P-256 key generate + JWK
+  round-trip for encrypted storage), and `Pkce` (S256 verifier/challenge).
+  Unit-tested incl. an RFC 7636 PKCE known-answer vector and DPoP signature
+  verification. Not yet wired into the app.
 
 ## 2026-06-04
 
