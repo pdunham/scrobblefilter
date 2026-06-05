@@ -15,6 +15,14 @@ The project does not use versioned releases, so entries are grouped by date.
   `CredentialCryptoTest` (round-trip, randomized IV, tamper rejection, wrong-key
   rejection, key-length validation). Not yet wired into Spring — that waits
   until `CRED_ENC_KEY` is plumbed into the runtime/test environment.
+- **Bluesky support, Phase 3 — User entity fields.** Add `blueskyDid`,
+  `blueskyHandle`, `blueskyRefreshTokenEnc`, `blueskyDpopKeyEnc`, and the
+  per-platform opt-in `blueskyCron` to the `User` entity, following the existing
+  `fromEntity`/`toEntity` empty→null coercion. The encrypted credential blobs are
+  stored unindexed (they can exceed Datastore's 1500-byte indexed-string limit
+  and never need indexing); `blueskyCron` stays indexed for the upcoming cron
+  query. Backward-compatible — existing entities default to null/false, no
+  migration needed. Extended `UserTest` with empty/absent/present cases.
 
 ## 2026-06-04
 

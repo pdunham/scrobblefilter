@@ -1,7 +1,9 @@
 package scrobblefilter.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
@@ -52,5 +54,53 @@ public class UserTest {
 
 		assertEquals("abc123", u.getToken());
 		assertEquals("secret456", u.getTokenSecret());
+	}
+
+	@Test
+	public void emptyBlueskyCredentialsCoerceToNull() {
+		Entity e = userEntity()
+			.set("blueskyDid", "")
+			.set("blueskyHandle", "")
+			.set("blueskyRefreshTokenEnc", "")
+			.set("blueskyDpopKeyEnc", "")
+			.build();
+
+		User u = User.fromEntity(e);
+
+		assertNull(u.getBlueskyDid());
+		assertNull(u.getBlueskyHandle());
+		assertNull(u.getBlueskyRefreshTokenEnc());
+		assertNull(u.getBlueskyDpopKeyEnc());
+		assertFalse(u.isBlueskyCron());
+	}
+
+	@Test
+	public void absentBlueskyFieldsAreNullAndCronFalse() {
+		User u = User.fromEntity(userEntity().build());
+
+		assertNull(u.getBlueskyDid());
+		assertNull(u.getBlueskyHandle());
+		assertNull(u.getBlueskyRefreshTokenEnc());
+		assertNull(u.getBlueskyDpopKeyEnc());
+		assertFalse(u.isBlueskyCron());
+	}
+
+	@Test
+	public void presentBlueskyFieldsArePreserved() {
+		Entity e = userEntity()
+			.set("blueskyDid", "did:plc:abc123")
+			.set("blueskyHandle", "alice.bsky.social")
+			.set("blueskyRefreshTokenEnc", "enc-refresh-blob")
+			.set("blueskyDpopKeyEnc", "enc-dpop-blob")
+			.set("blueskyCron", true)
+			.build();
+
+		User u = User.fromEntity(e);
+
+		assertEquals("did:plc:abc123", u.getBlueskyDid());
+		assertEquals("alice.bsky.social", u.getBlueskyHandle());
+		assertEquals("enc-refresh-blob", u.getBlueskyRefreshTokenEnc());
+		assertEquals("enc-dpop-blob", u.getBlueskyDpopKeyEnc());
+		assertTrue(u.isBlueskyCron());
 	}
 }
