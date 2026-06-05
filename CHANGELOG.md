@@ -42,6 +42,15 @@ The project does not use versioned releases, so entries are grouped by date.
   round-trip for encrypted storage), and `Pkce` (S256 verifier/challenge).
   Unit-tested incl. an RFC 7636 PKCE known-answer vector and DPoP signature
   verification. Not yet wired into the app.
+- **Bluesky support, Phase 4d — OAuth client.** Add `BlueskyOAuthClient`
+  (`scrobblefilter.net.bluesky`): public-client PAR → token exchange → refresh,
+  attaching a DPoP proof to every request and retrying once with the server
+  `DPoP-Nonce` on a `use_dpop_nonce` challenge. Scope `atproto transition:generic`.
+  POST is behind a `FormPoster` seam (`HttpExchange` exposes status/body/headers,
+  no throw on 4xx so the nonce can be read); `JdkFormPoster` is the prod impl;
+  `TokenSet` holds the returned tokens/DID/scope. Unit-tested (PAR params,
+  nonce-retry verified by decoding the retried proof, code exchange, refresh,
+  error). Not yet wired into the app.
 
 ## 2026-06-04
 
