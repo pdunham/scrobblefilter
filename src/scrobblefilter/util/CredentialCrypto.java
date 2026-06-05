@@ -21,6 +21,10 @@ import javax.crypto.spec.SecretKeySpec;
  * {@link scrobblefilter.web.AdminAuth}). Wire-format of {@link #encrypt} output:
  * {@code base64(iv ‖ ciphertext ‖ tag)} — the GCM tag is appended to the
  * ciphertext by the JCE provider.
+ *
+ * <p>Instances are thread-safe and intended to be shared (e.g. a single Spring
+ * bean): each call builds its own {@link Cipher}, the key is immutable, and
+ * {@link SecureRandom} is safe for concurrent use.
  */
 public class CredentialCrypto {
 
