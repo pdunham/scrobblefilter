@@ -5,6 +5,7 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.StringValue;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 import java.util.ArrayList;
@@ -24,6 +25,15 @@ public class User {
 	private boolean cron;
 	private String prefixText;
 
+	// Bluesky (AT Protocol). did/handle are non-secret; the refresh token and
+	// DPoP private key are stored encrypted (see CredentialCrypto) and verbatim
+	// here — decryption happens in the poster, not the model.
+	private String blueskyDid;
+	private String blueskyHandle;
+	private String blueskyRefreshTokenEnc;
+	private String blueskyDpopKeyEnc;
+	private boolean blueskyCron;
+
 	public static User fromEntity(Entity e) {
 		if (e == null) return null;
 		User u = new User();
@@ -39,6 +49,15 @@ public class User {
 		u.useNumbers  = e.contains("useNumbers")  && e.getBoolean("useNumbers");
 		u.isRandom    = e.contains("isRandom")    && e.getBoolean("isRandom");
 		u.cron        = e.contains("cron")        && e.getBoolean("cron");
+		String rawBskyDid = e.contains("blueskyDid") ? e.getString("blueskyDid") : null;
+		u.blueskyDid = (rawBskyDid != null && !rawBskyDid.isEmpty()) ? rawBskyDid : null;
+		String rawBskyHandle = e.contains("blueskyHandle") ? e.getString("blueskyHandle") : null;
+		u.blueskyHandle = (rawBskyHandle != null && !rawBskyHandle.isEmpty()) ? rawBskyHandle : null;
+		String rawBskyRefresh = e.contains("blueskyRefreshTokenEnc") ? e.getString("blueskyRefreshTokenEnc") : null;
+		u.blueskyRefreshTokenEnc = (rawBskyRefresh != null && !rawBskyRefresh.isEmpty()) ? rawBskyRefresh : null;
+		String rawBskyDpop = e.contains("blueskyDpopKeyEnc") ? e.getString("blueskyDpopKeyEnc") : null;
+		u.blueskyDpopKeyEnc = (rawBskyDpop != null && !rawBskyDpop.isEmpty()) ? rawBskyDpop : null;
+		u.blueskyCron = e.contains("blueskyCron") && e.getBoolean("blueskyCron");
 		return u;
 	}
 
@@ -55,6 +74,15 @@ public class User {
 			.set("useNumbers",  useNumbers)
 			.set("isRandom",    isRandom)
 			.set("cron",        cron)
+			.set("blueskyDid",    blueskyDid    != null ? blueskyDid    : "")
+			.set("blueskyHandle", blueskyHandle != null ? blueskyHandle : "")
+			// Encrypted credential blobs can exceed Datastore's 1500-byte indexed
+			// string limit and never need indexing — store them unindexed.
+			.set("blueskyRefreshTokenEnc", StringValue.newBuilder(blueskyRefreshTokenEnc != null ? blueskyRefreshTokenEnc : "")
+					.setExcludeFromIndexes(true).build())
+			.set("blueskyDpopKeyEnc", StringValue.newBuilder(blueskyDpopKeyEnc != null ? blueskyDpopKeyEnc : "")
+					.setExcludeFromIndexes(true).build())
+			.set("blueskyCron", blueskyCron)
 			.build();
 	}
 
@@ -123,6 +151,46 @@ public class User {
 
 	public void setCron(boolean cron) {
 		this.cron = cron;
+	}
+
+	public String getBlueskyDid() {
+		return blueskyDid;
+	}
+
+	public void setBlueskyDid(String blueskyDid) {
+		this.blueskyDid = blueskyDid;
+	}
+
+	public String getBlueskyHandle() {
+		return blueskyHandle;
+	}
+
+	public void setBlueskyHandle(String blueskyHandle) {
+		this.blueskyHandle = blueskyHandle;
+	}
+
+	public String getBlueskyRefreshTokenEnc() {
+		return blueskyRefreshTokenEnc;
+	}
+
+	public void setBlueskyRefreshTokenEnc(String blueskyRefreshTokenEnc) {
+		this.blueskyRefreshTokenEnc = blueskyRefreshTokenEnc;
+	}
+
+	public String getBlueskyDpopKeyEnc() {
+		return blueskyDpopKeyEnc;
+	}
+
+	public void setBlueskyDpopKeyEnc(String blueskyDpopKeyEnc) {
+		this.blueskyDpopKeyEnc = blueskyDpopKeyEnc;
+	}
+
+	public boolean isBlueskyCron() {
+		return blueskyCron;
+	}
+
+	public void setBlueskyCron(boolean blueskyCron) {
+		this.blueskyCron = blueskyCron;
 	}
 
 	public String getPreface() {
