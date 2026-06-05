@@ -2,6 +2,7 @@
   "name": "scrobblefilter-e2e",
   "version": "1.0.0",
   "scripts": {
+    "pretest": "docker build -t scrobblefilter .. && (docker rm -f scrobblefilter-e2e 2>/dev/null || true)",
     "test": "playwright test",
     "test:smoke": "playwright test tests/smoke.spec.ts"
   },
