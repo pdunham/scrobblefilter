@@ -27,6 +27,14 @@ The project does not use versioned releases, so entries are grouped by date.
   normal Maven dependency, not a vendored JAR) for the ES256 signing the AT
   Protocol OAuth DPoP proofs require. Smoke test confirms ES256 sign/verify works
   in this JDK.
+- **Bluesky support, Phase 4b — identity resolution.** Add `BlueskyResolver`
+  (`scrobblefilter.net.bluesky`): handle → DID (`com.atproto.identity.resolveHandle`)
+  → PDS (DID document, `did:plc` via `plc.directory` and `did:web`) → authorization
+  server (`oauth-protected-resource` + `oauth-authorization-server`), yielding the
+  PAR/authorize/token endpoints. HTTP is behind an `HttpGetter` seam for testing;
+  the two entry points are overridable via `BLUESKY_HANDLE_RESOLVER_URL` /
+  `BLUESKY_PLC_DIRECTORY_URL`. Unit-tested against canned JSON (full chain,
+  `did:web`, and error paths). Not yet wired into the app.
 
 ## 2026-06-04
 
