@@ -13,6 +13,14 @@ public class CredentialCryptoProvider {
 
 	private volatile CredentialCrypto instance;
 
+	public CredentialCryptoProvider() {
+	}
+
+	/** Explicit/test seam: provide a ready instance (e.g. with a known key). */
+	public CredentialCryptoProvider(CredentialCrypto instance) {
+		this.instance = instance;
+	}
+
 	/** Returns the shared instance, constructing it on first call. Throws if CRED_ENC_KEY is unset. */
 	public CredentialCrypto get() {
 		CredentialCrypto local = instance;
