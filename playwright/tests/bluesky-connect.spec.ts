@@ -7,7 +7,6 @@ function uniqueLastfm(): string {
 async function register(page: any, lastfm: string) {
   await page.goto('/hello/welcome');
   await page.fill('input[name="lastfmName"]', lastfm);
-  await page.fill('input[name="name"]', 'bskytester');
   await page.click('input[type="submit"]');
 }
 

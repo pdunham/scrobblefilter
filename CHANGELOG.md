@@ -40,7 +40,10 @@ The project does not use versioned releases, so entries are grouped by date.
   are linked, and its error wording is platform-neutral. E2e covers a manual Bluesky
   post via the filtered-list link. The weekly-post settings (Twitter and Bluesky)
   are now real toggle switches that flip the setting on change, replacing the
-  disabled-checkbox-plus-true/false-button control.
+  disabled-checkbox-plus-true/false-button control. The Twitter weekly toggle sits
+  next to the Twitter account module. Registration is simplified to just the
+  Last.fm username — the optional Twitter-handle field is removed (Twitter is
+  linked later via OAuth).
 
 ## 2026-06-05
 
