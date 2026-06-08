@@ -143,8 +143,8 @@ are required on the Cloud Run service:
 
 One-time setup (mirrors the admin/cron secrets):
 
-    # 32-byte AES key, base64
-    head -c 32 /dev/urandom | base64 | gcloud secrets create cred-enc-key --data-file=-
+    # 32-byte AES key, base64 (tr -d '\n' so no trailing newline lands in the secret)
+    head -c 32 /dev/urandom | base64 | tr -d '\n' | gcloud secrets create cred-enc-key --data-file=-
 
     SVC_URL=$(gcloud run services describe scrobblefilter --region=us-central1 --format='value(status.url)')
     printf '%s/hello/client-metadata.json' "$SVC_URL" | gcloud secrets create bluesky-client-id --data-file=-
