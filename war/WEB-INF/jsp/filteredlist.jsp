@@ -2,9 +2,11 @@
 <%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@page import="java.util.Map,scrobblefilter.model.Preferences"%>
 <%@page import="java.util.List,scrobblefilter.model.ScrobbledArtist"%>
+<%@page import="scrobblefilter.model.User"%>
 <%
 Map<String, Object> model = (Map<String, Object>)request.getAttribute("model");
 Preferences prefs = model==null?null:(Preferences)model.get("prefs");
+User user = (User)request.getSession().getAttribute("user");
 String artist1 = prefs==null?"":prefs.getArtist();
 List<ScrobbledArtist> topArtists = (List<ScrobbledArtist>)model.get("list");
 String greetingName = prefs==null ? "" : (prefs.getTwitterName() != null && !prefs.getTwitterName().isEmpty() ? prefs.getTwitterName() : prefs.getLastfmName());
@@ -27,8 +29,8 @@ Hello, <%=greetingName%>!
 <a href="world">go back</a>
 <br>
 <% if (model!=null && model.get("error")!=null) { %>
-	<div class=error>The tweet failed: <%=model.get("error")%>
-	<br><a href="twittersignin?lastfmName=<%=prefs.getLastfmName()%>">Re-link your Twitter account</a>
+	<div class=error>The post failed: <%=model.get("error")%>
+	<br><a href="world">back to your dashboard to re-link an account</a>
 	</div>
 <% } %>
 <table>
@@ -51,7 +53,17 @@ Hello, <%=greetingName%>!
 	</tr>
 <% } %>
 </table>
-<a href="tweet?lastfmName=<%=prefs.getLastfmName()%>">tweet it</a>
+<p>Post this now:
+<% if (user != null && user.getToken() != null) { %>
+<a href="post?platform=twitter">post to twitter</a>
+<% } %>
+<% if (user != null && user.getBlueskyHandle() != null) { %>
+<a href="post?platform=bluesky">post to bluesky</a>
+<% } %>
+<% if (user == null || (user.getToken() == null && user.getBlueskyHandle() == null)) { %>
+<span>link a Twitter or Bluesky account on your <a href="world">dashboard</a> to post.</span>
+<% } %>
+</p>
 </body>
 </div> <!-- main -->
 </html>
