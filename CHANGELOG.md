@@ -66,6 +66,9 @@ The project does not use versioned releases, so entries are grouped by date.
   exchange (the failure was in credential encryption, not the OAuth flow).
   `CredentialCrypto` now trims the key; the README key-creation command adds
   `tr -d '\n'`.
+- **Dashboard header tidy.** The greeting uses the Last.fm username (not the
+  Twitter handle) and carries the **log out** link; the linked-Twitter line now
+  shows the Twitter handle (`@name`) instead of the log-out link.
 
 ## 2026-06-05
 
