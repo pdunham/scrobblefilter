@@ -63,12 +63,25 @@ These finish the Cloud Run migration and harden what already exists.
 Lift the constraints called out in [mission.md](mission.md) as limitations:
 
 - **Configurable artist count.** Remove the hardcoded "exactly 3 artists" in
-  `ScrobbleTweeter.constructTweet`; make it a per-user preference with a sane
+  `StatusComposer.constructStatus`; make it a per-user preference with a sane
   default, and handle the <N-artists case gracefully.
 - **Configurable time window.** Make the Last.fm period (`7day`) a preference
   (e.g. 7-day / 1-month / overall).
 - **Post preview / approval.** Optionally let a user review the generated post
   before it goes out.
+- **Unlink a social account.** Let a user disconnect Twitter or Bluesky from the
+  dashboard: clear the stored credentials (token/tokenSecret, or the encrypted
+  Bluesky refresh token + DPoP key + DID/handle), reset that platform's opt-in,
+  and revoke the token server-side where supported. Today there's no in-app way
+  to remove a linked account.
+- **Multiple accounts per platform.** Allow more than one Twitter and/or Bluesky
+  account per user (e.g. a personal and a band account). This is a data-model
+  change: the single-valued fields on `User` (twitterName/token/tokenSecret;
+  blueskyHandle/did/refresh/dpop) move to a collection of linked accounts —
+  likely a child entity keyed by platform + account — each with its own opt-in,
+  and the cron/manual fan-out iterates every enabled account. The `SocialPoster`
+  seam already abstracts per-platform posting; the work is in the model, the
+  connect/unlink flows, and the dashboard listing.
 
 ---
 
