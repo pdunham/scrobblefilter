@@ -4,6 +4,35 @@ All notable changes to ScrobbleFilter on the `master` branch, summarized by
 date. Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 The project does not use versioned releases, so entries are grouped by date.
 
+## 2026-06-08
+
+- **Bluesky support, Phase 4f — connect flow.** Add `BlueskySignInController`:
+  `/hello/bluesky/signin` resolves the handle, mints a per-account DPoP key + PKCE
+  + state, pushes the authorization request, and redirects to the authorization
+  server; `/hello/bluesky/callback` exchanges the code and persists the **encrypted**
+  DPoP key + refresh token (and DID/handle) on the `User`. OAuth state is held in
+  the session between legs. `client_id`/`redirect_uri` derive from the request
+  (`BlueskyUrls`). Dashboard shows a connect-Bluesky module (top of the page) with
+  a connect form / linked-handle status. E2e: a mock AT Protocol authorization
+  server + PDS (`atproto-mock-server.js`) drives a full connect round-trip
+  (`BLUESKY_*` env points the app at it).
+- **Bluesky support, Phase 5 — `BlueskyPoster`.** A `SocialPoster` for Bluesky:
+  decrypt the stored DPoP key + refresh token, re-resolve the account, refresh for
+  a DPoP-bound access token (rotated refresh token is re-encrypted and persisted),
+  then `com.atproto.repo.createRecord` an `app.bsky.feed.post` — DPoP proof on the
+  resource call (with `ath`) and a `DPoP-Nonce` retry. New `JsonPoster` seam
+  (`JdkJsonPoster`) for the JSON resource POST; `client_id` for refresh comes from
+  `BLUESKY_CLIENT_ID`. Unit-tested (refresh + createRecord + rotation persistence,
+  ath binding, nonce-retry, error, enablement).
+- **Bluesky support, Phase 6 — weekly cron fan-out.** Wire `BlueskyPoster` into the
+  `List<SocialPoster>` the weekly cron loops over, and broaden `CronUserFetcher` to
+  return users opted into **either** platform (`cron` OR `blueskyCron`, run as two
+  equality queries unioned by key). Add a `blueskyCron` opt-in toggle on the
+  dashboard (`updateBlueskyCronSetting`, mirroring the Twitter cron toggle). The
+  cron now posts a user's weekly summary to every enabled + connected target.
+  E2e: connect → opt in → trigger the cron endpoint → assert the mock PDS received
+  a `com.atproto.repo.createRecord` for an `app.bsky.feed.post`.
+
 ## 2026-06-05
 
 - **Bluesky support, Phase 2 — credential encryption.** Add `CredentialCrypto`
@@ -64,23 +93,6 @@ The project does not use versioned releases, so entries are grouped by date.
   `scrobblefilter-e2e` container) and runs with `reuseExistingServer:false`, so the
   suite always exercises current code instead of silently reusing a stale
   container left on `:8080`.
-- **Bluesky support, Phase 4f — connect flow.** Add `BlueskySignInController`:
-  `/hello/bluesky/signin` resolves the handle, mints a per-account DPoP key + PKCE
-  + state, pushes the authorization request, and redirects to the authorization
-  server; `/hello/bluesky/callback` exchanges the code and persists the **encrypted**
-  DPoP key + refresh token (and DID/handle) on the `User`. OAuth state is held in
-  the session between legs. `client_id`/`redirect_uri` derive from the request
-  (`BlueskyUrls`). Dashboard shows a connect-Bluesky form / linked-handle status.
-  E2e: a mock AT Protocol authorization server + PDS (`atproto-mock-server.js`)
-  drives a full connect round-trip (`BLUESKY_*` env points the app at it).
-- **Bluesky support, Phase 5 — `BlueskyPoster`.** A `SocialPoster` for Bluesky:
-  decrypt the stored DPoP key + refresh token, re-resolve the account, refresh for
-  a DPoP-bound access token (rotated refresh token is re-encrypted and persisted),
-  then `com.atproto.repo.createRecord` an `app.bsky.feed.post` — DPoP proof on the
-  resource call (with `ath`) and a `DPoP-Nonce` retry. New `JsonPoster` seam
-  (`JdkJsonPoster`) for the JSON resource POST; `client_id` for refresh comes from
-  `BLUESKY_CLIENT_ID`. Unit-tested (refresh + createRecord + rotation persistence,
-  ath binding, nonce-retry, error, enablement). Not yet wired into the fan-out.
 
 ## 2026-06-04
 

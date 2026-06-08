@@ -53,6 +53,8 @@ export default defineConfig({
         // Point AT Protocol resolution at the mock (app reaches host via host.docker.internal).
         '-e BLUESKY_HANDLE_RESOLVER_URL=http://host.docker.internal:9091',
         '-e BLUESKY_PLC_DIRECTORY_URL=http://host.docker.internal:9091',
+        // Test cron token so the e2e can trigger the weekly post endpoint.
+        '-e CRON_TOKEN=test-cron-token',
         'scrobblefilter',
       ].join(' '),
       // Use url (not port) so Playwright waits for the app to be fully

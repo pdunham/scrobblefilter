@@ -41,6 +41,10 @@ Hello<%= user==null?"":", "+greetingName%>
 </form>
 <% } else { %>
 <P>You have linked your Bluesky account &mdash; @<%=user.getBlueskyHandle()%>
+<form method=post action=updateBlueskyCronSetting>
+<input type="checkbox" <%= user.isBlueskyCron()?"checked":"" %> disabled/> post to bluesky weekly
+<input type=submit name=blueskyCron value=<%= !user.isBlueskyCron() %>>
+</form>
 <% } %>
 <% if (user.getToken()==null) { %>
 <P>You have not linked your twitter account.  <a href="twittersignin?lastfmName=<%=user.getLastfmName()%>">do it</a>

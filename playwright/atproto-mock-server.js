@@ -17,6 +17,7 @@ const BROWSER_BASE = process.env.ATPROTO_MOCK_BROWSER_BASE || 'http://localhost:
 
 const parStore = {}; // request_uri -> { redirect_uri, state }
 let counter = 0;
+let lastPost = null; // most recent createRecord payload (for e2e assertions)
 
 function json(res, code, obj) {
   res.writeHead(code, { 'Content-Type': 'application/json' });
@@ -76,16 +77,30 @@ const server = http.createServer((req, res) => {
     res.writeHead(302, { Location: loc });
     return res.end();
   }
-  // 7. token: issue DPoP-bound tokens.
+  // 7. token: issue DPoP-bound tokens (refresh rotates the refresh token).
   if (path === '/oauth/token' && req.method === 'POST') {
     return json(res, 200, {
       access_token: 'mock-access-token',
       token_type: 'DPoP',
-      refresh_token: 'mock-refresh-token',
+      refresh_token: 'mock-refresh-token-rotated',
       sub: 'did:plc:mockuser',
       scope: 'atproto transition:generic',
       expires_in: 3600,
     });
+  }
+  // 8. PDS createRecord: record the post so the e2e can assert it.
+  if (path === '/xrpc/com.atproto.repo.createRecord' && req.method === 'POST') {
+    let body = '';
+    req.on('data', (c) => (body += c));
+    req.on('end', () => {
+      try { lastPost = JSON.parse(body); } catch (_e) { lastPost = { raw: body }; }
+      json(res, 200, { uri: 'at://did:plc:mockuser/app.bsky.feed.post/mockrkey', cid: 'mockcid' });
+    });
+    return;
+  }
+  // Debug: the most recent createRecord payload (test-only).
+  if (path === '/debug/last-post' && req.method === 'GET') {
+    return json(res, 200, lastPost || {});
   }
 
   res.writeHead(404);
