@@ -15,6 +15,13 @@
 - Added a **Cloud Scheduler** job for the weekly tweet (Tue 10:00
   America/Chicago, authenticated with `CRON_TOKEN`), restoring the schedule that
   GAE's `cron.xml` no longer provides under Cloud Run.
+- Shipped **Bluesky support (multi-platform posting)** — the headline feature.
+  Behind a `SocialPoster` abstraction (Twitter is now one implementation), users
+  connect a Bluesky account via **AT Protocol OAuth** (PKCE + PAR + DPoP),
+  opt in per platform, and the weekly summary fans out to every enabled target;
+  manual per-platform posting too. Per-user Bluesky credentials are **encrypted at
+  rest** (`CredentialCrypto`, key from `CRED_ENC_KEY`). See the README for the
+  `CRED_ENC_KEY` / `BLUESKY_CLIENT_ID` setup.
 
 ---
 
@@ -26,44 +33,6 @@ These finish the Cloud Run migration and harden what already exists.
   currently baked into the image. Mount them from Secret Manager (volume or env)
   so no credentials live in the container. (Aligns with mission principle 4.)
 - **Last.fm over HTTPS.** Confirm the Last.fm base URL uses `https://`.
-
----
-
-## Next: Bluesky support (multi-platform posting)
-
-**Goal:** let a user post their weekly summary to **Bluesky** instead of, or in
-addition to, Twitter/X — the headline feature of this roadmap.
-
-Why it fits: identity is already keyed on Last.fm name, not the social platform
-(mission principle 3), so adding a second posting target is an additive change,
-not a re-architecture.
-
-Proposed shape:
-
-1. **Introduce a posting abstraction.** Extract a `SocialPoster` interface
-   (`post(user, statusText)`) and refactor the current Twitter path
-   (`ScrobbleTweeter` / Twitter4J) to be one implementation behind it. This is
-   the key enabling refactor.
-2. **Add a Bluesky implementation** over the **AT Protocol**: authenticate with
-   the user's handle + an **app password** to create a session
-   (`com.atproto.server.createSession`), then publish an `app.bsky.feed.post`
-   record (`com.atproto.repo.createRecord`). No vendored SDK exists; this is a
-   small HTTPS/JSON client.
-3. **Extend the data model & connect flow.** Store per-user Bluesky credentials
-   (handle + app password / refresh token) on the `User` entity alongside the
-   Twitter tokens. Add a "connect Bluesky" path to registration and the
-   dashboard. Per-platform opt-in (extend the single `cron` flag to per-target
-   enablement).
-4. **Fan out at post time.** `TweeterCronJob` / the cron handler iterates a
-   user's *enabled* targets and posts to each via its `SocialPoster`.
-5. **Mind the differences.** Bluesky's limit is ~300 graphemes (vs Twitter's
-   280); rich-text "facets" are optional. The current 3-artist post is short
-   enough that length is not a near-term concern, but the abstraction should not
-   assume Twitter's constraints.
-
-Open questions to resolve in the spec: credential storage/encryption for app
-passwords; whether posting is "either/or" or "both"; naming now that "tweet" is
-no longer the only verb (e.g. `ScrobbleTweeter` → `ScrobblePoster`).
 
 ---
 
