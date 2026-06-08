@@ -18,7 +18,9 @@ async function setupUser(page: any, handle: string, lastfm: string) {
 
 async function addArtist(page: any, artist: string) {
   await page.fill('input[name="artist"]', artist);
-  await page.click('input[type="submit"]');
+  // Target the add-artist form's submit specifically — the dashboard has other
+  // forms (e.g. connect Bluesky), so "the first submit on the page" is ambiguous.
+  await page.click('form[action="addartist"] input[type="submit"]');
 }
 
 // The filtered artists table is the second table on the page;

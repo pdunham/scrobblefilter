@@ -33,6 +33,15 @@ String greetingName = user==null ? "" : (user.getTwitterName() != null ? user.ge
 <% String authError = (model != null) ? (String)model.get("authError") : null; %>
 <% if (authError != null) { %><P style="color:red"><%= authError %></P><% } %>
 Hello<%= user==null?"":", "+greetingName%>
+<% if (user.getBlueskyHandle()==null) { %>
+<P>You have not linked your Bluesky account.
+<form method=get action=bluesky/signin>
+<input type=text name=handle placeholder="you.bsky.social">
+<input type=submit value="connect bluesky">
+</form>
+<% } else { %>
+<P>You have linked your Bluesky account &mdash; @<%=user.getBlueskyHandle()%>
+<% } %>
 <% if (user.getToken()==null) { %>
 <P>You have not linked your twitter account.  <a href="twittersignin?lastfmName=<%=user.getLastfmName()%>">do it</a>
 <% } else { %>
@@ -65,17 +74,6 @@ for (FilteredArtist artist : artists) {
 <% } %>
 </table>
 <a href="filter?lastfmName=<%=user.getLastfmName()%>">see the filtered list</a>
-<%-- Bluesky account linking. Kept at the bottom so the add-artist form's submit
-     stays the first submit on the page; a fuller UI/opt-in toggle comes in a later phase. --%>
-<% if (user.getBlueskyHandle()==null) { %>
-<P>You have not linked your Bluesky account.
-<form method=get action=bluesky/signin>
-<input type=text name=handle placeholder="you.bsky.social">
-<input type=submit value="connect bluesky">
-</form>
-<% } else { %>
-<P>You have linked your Bluesky account &mdash; @<%=user.getBlueskyHandle()%>
-<% } %>
 </div> <!-- main -->
 </body>
 </html>
