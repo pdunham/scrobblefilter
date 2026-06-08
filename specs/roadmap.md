@@ -29,6 +29,28 @@
 
 These finish the Cloud Run migration and harden what already exists.
 
+- **Add a ScrobbleFilter account password (authentication).** *Security gap —
+  highest priority.* Registration/login is by Last.fm name alone: anyone who
+  enters an existing user's Last.fm name gets that user's session and can toggle
+  their weekly posting, add/remove filtered artists, and **force a post to their
+  linked Twitter/Bluesky accounts**. (The attacker can't authenticate *as* them on
+  Twitter/Bluesky, but they can drive ScrobbleFilter's controls — including
+  triggering real posts to the victim's accounts.) Fix:
+  - Add a per-user app password set at first registration; store only a salted
+    hash (e.g. bcrypt/PBKDF2 via a vendored or JDK-available KDF) on the `User`
+    entity — never the plaintext.
+  - On return, require Last.fm name **+ password**; only establish the session
+    (`request.getSession().setAttribute("user", …)`) on a verified match.
+    Constant-time hash comparison.
+  - Decide migration for existing password-less users (e.g. set-a-password
+    prompt on next login) and a reset path (low priority for a small user base).
+  - Consider gating state-changing endpoints (`updateCronSetting`,
+    `updateBlueskyCronSetting`, `addartist`, `removeartist`, `post`, `tweet`) on
+    the authenticated session — they already read the session user, so the win is
+    making the session itself trustworthy.
+  - Note: HTTP sessions are in-memory and fragile across Cloud Run instances
+    (see tech-debt below); a real auth story may also want a shared session store
+    or stateless tokens.
 - **Move `twitter4j.properties` to Secret Manager.** OAuth consumer secrets are
   currently baked into the image. Mount them from Secret Manager (volume or env)
   so no credentials live in the container. (Aligns with mission principle 4.)
