@@ -41,9 +41,10 @@ Hello<%= user==null?"":", "+greetingName%>
 </form>
 <% } else { %>
 <P>You have linked your Bluesky account &mdash; @<%=user.getBlueskyHandle()%>
-<form method=post action=updateBlueskyCronSetting>
-<input type="checkbox" <%= user.isBlueskyCron()?"checked":"" %> disabled/> post to bluesky weekly
-<input type=submit name=blueskyCron value=<%= !user.isBlueskyCron() %>>
+<form method=post action=updateBlueskyCronSetting class=toggle-row>
+<label class="switch"><input type="checkbox" name="blueskyCron" value="true" <%= user.isBlueskyCron()?"checked":"" %> onchange="this.form.submit()"><span class="slider"></span></label>
+post to bluesky weekly
+<noscript><input type=submit value="save"></noscript>
 </form>
 <% } %>
 <% if (user.getToken()==null) { %>
@@ -59,9 +60,10 @@ you have linked your twitter account &mdash; <a href="logout">log out</a>
 </table>
 <input type=submit>
 </form>
-<form method=post action=updateCronSetting>
-<P><input type="checkbox" <%= user.isCron()?"checked":"" %> disabled/> use cron job
-<input type=submit name=cron value=<%= !user.isCron() %>>
+<form method=post action=updateCronSetting class=toggle-row>
+<label class="switch"><input type="checkbox" name="cron" value="true" <%= user.isCron()?"checked":"" %> onchange="this.form.submit()"><span class="slider"></span></label>
+post to twitter weekly
+<noscript><input type=submit value="save"></noscript>
 </form>
 <table>
 <%

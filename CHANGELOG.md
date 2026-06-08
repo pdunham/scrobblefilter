@@ -38,7 +38,9 @@ The project does not use versioned releases, so entries are grouped by date.
   (the Twitter-only `tweet` endpoint stays as a back-compat alias). The filtered-list
   page now offers "post to twitter" / "post to bluesky" links for whichever accounts
   are linked, and its error wording is platform-neutral. E2e covers a manual Bluesky
-  post via the filtered-list link.
+  post via the filtered-list link. The weekly-post settings (Twitter and Bluesky)
+  are now real toggle switches that flip the setting on change, replacing the
+  disabled-checkbox-plus-true/false-button control.
 
 ## 2026-06-05
 
