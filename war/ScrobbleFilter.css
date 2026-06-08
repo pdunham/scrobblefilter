@@ -80,6 +80,16 @@ h1 {
 .switch input:checked + .slider:before {
   transform: translateX(22px);
 }
+.switch input:disabled {
+  cursor: not-allowed;
+}
+.switch input:disabled + .slider {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.toggle-row.disabled {
+  color: #999;
+}
 .toggle-row {
   margin: 8px 0;
 }

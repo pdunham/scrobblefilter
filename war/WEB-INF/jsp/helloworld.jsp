@@ -7,7 +7,7 @@
 <%@page import="java.net.URLEncoder"%>
 <html>
 <head>
-<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=2">
+<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=3">
 <title>Hello, World</title>
 </head>
 
@@ -33,7 +33,8 @@ String greetingName = user==null ? "" : (user.getTwitterName() != null ? user.ge
 <% String authError = (model != null) ? (String)model.get("authError") : null; %>
 <% if (authError != null) { %><P style="color:red"><%= authError %></P><% } %>
 Hello<%= user==null?"":", "+greetingName%>
-<% if (user.getBlueskyHandle()==null) { %>
+<% boolean blueskyLinked = user.getBlueskyHandle()!=null; %>
+<% if (!blueskyLinked) { %>
 <P>You have not linked your Bluesky account.
 <form method=get action=bluesky/signin>
 <input type=text name=handle placeholder="you.bsky.social">
@@ -41,19 +42,20 @@ Hello<%= user==null?"":", "+greetingName%>
 </form>
 <% } else { %>
 <P>You have linked your Bluesky account &mdash; @<%=user.getBlueskyHandle()%>
-<form method=post action=updateBlueskyCronSetting class=toggle-row>
-<label class="switch"><input type="checkbox" name="blueskyCron" value="true" <%= user.isBlueskyCron()?"checked":"" %> onchange="this.form.submit()"><span class="slider"></span></label>
+<% } %>
+<form method=post action=updateBlueskyCronSetting class="toggle-row<%= blueskyLinked?"":" disabled" %>">
+<label class="switch"><input type="checkbox" name="blueskyCron" value="true" <%= user.isBlueskyCron()?"checked":"" %> <%= blueskyLinked?"":"disabled" %> onchange="this.form.submit()"><span class="slider"></span></label>
 post to bluesky weekly
 <noscript><input type=submit value="save"></noscript>
 </form>
-<% } %>
-<% if (user.getToken()==null) { %>
+<% boolean twitterLinked = user.getToken()!=null; %>
+<% if (!twitterLinked) { %>
 <P>You have not linked your twitter account.  <a href="twittersignin?lastfmName=<%=user.getLastfmName()%>">do it</a>
 <% } else { %>
 you have linked your twitter account &mdash; <a href="logout">log out</a>
 <% } %>
-<form method=post action=updateCronSetting class=toggle-row>
-<label class="switch"><input type="checkbox" name="cron" value="true" <%= user.isCron()?"checked":"" %> onchange="this.form.submit()"><span class="slider"></span></label>
+<form method=post action=updateCronSetting class="toggle-row<%= twitterLinked?"":" disabled" %>">
+<label class="switch"><input type="checkbox" name="cron" value="true" <%= user.isCron()?"checked":"" %> <%= twitterLinked?"":"disabled" %> onchange="this.form.submit()"><span class="slider"></span></label>
 post to twitter weekly
 <noscript><input type=submit value="save"></noscript>
 </form>

@@ -10,10 +10,12 @@ async function register(page: any, lastfm: string) {
   await page.click('input[type="submit"]');
 }
 
-test('a new user sees the connect-Bluesky form', async ({ page }) => {
+test('a new user sees the connect-Bluesky form with a disabled weekly toggle', async ({ page }) => {
   await register(page, uniqueLastfm());
   await expect(page.locator('body')).toContainText('not linked your Bluesky account');
   await expect(page.locator('input[name="handle"]')).toBeVisible();
+  // The weekly toggle is shown but greyed out until Bluesky is linked.
+  await expect(page.locator('input[name="blueskyCron"]')).toBeDisabled();
 });
 
 test('connecting Bluesky via OAuth persists the account', async ({ page }) => {
