@@ -36,7 +36,17 @@
 	<!-- AT Protocol OAuth collaborators for the Bluesky connect flow. -->
 	<bean id="blueskyResolver" class="scrobblefilter.net.bluesky.BlueskyResolver"/>
 	<bean id="formPoster" class="scrobblefilter.net.bluesky.JdkFormPoster"/>
+	<bean id="jsonPoster" class="scrobblefilter.net.bluesky.JdkJsonPoster"/>
 	<bean id="dpopProofFactory" class="scrobblefilter.net.bluesky.DpopProofFactory"/>
+
+	<!-- Bluesky posting target; joins the List<SocialPoster> the cron job fans out over. -->
+	<bean id="blueskyPoster" class="scrobblefilter.net.bluesky.BlueskyPoster">
+		<constructor-arg ref="blueskyResolver"/>
+		<constructor-arg ref="formPoster"/>
+		<constructor-arg ref="jsonPoster"/>
+		<constructor-arg ref="dpopProofFactory"/>
+		<constructor-arg ref="credentialCryptoProvider"/>
+	</bean>
 	
 </beans>
 	

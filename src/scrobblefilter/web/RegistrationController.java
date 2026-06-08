@@ -73,6 +73,20 @@ public class RegistrationController {
 		return new ModelAndView("helloworld", "model", model);
 	}
 
+	@RequestMapping(value="updateBlueskyCronSetting", method=POST)
+	public ModelAndView updateBlueskyCronSetting(HttpServletRequest request, HttpServletResponse response, User user, BindingResult result, Map<String, Object> model)
+	{
+		User sessionUser = (User) request.getSession().getAttribute("user");
+		if (sessionUser == null) return new ModelAndView("redirect:/hello/welcome");
+		User foundUser = findUser(sessionUser.getLastfmName());
+		if (foundUser == null) return new ModelAndView("redirect:/hello/welcome");
+		foundUser.setBlueskyCron(user.isBlueskyCron());
+		foundUser.save();
+		request.getSession().setAttribute("user", foundUser);
+		model.put("user", foundUser);
+		return new ModelAndView("helloworld", "model", model);
+	}
+
 	protected static User findOrCreateUser(User user) {
 		if (user.getLastfmName() == null || user.getLastfmName().isEmpty()) {
 			return null;
