@@ -54,10 +54,12 @@ public class CredentialCrypto {
 
 	private static byte[] keyFromEnv() {
 		String b64 = System.getenv(ENV_VAR);
-		if (b64 == null || b64.isEmpty()) {
+		if (b64 == null || b64.trim().isEmpty()) {
 			throw new IllegalStateException(ENV_VAR + " is not set");
 		}
-		return Base64.getDecoder().decode(b64);
+		// trim: a Secret Manager value created via `... | base64 | gcloud secrets
+		// create` carries a trailing newline, which the strict base64 decoder rejects.
+		return Base64.getDecoder().decode(b64.trim());
 	}
 
 	/** Encrypt UTF-8 plaintext; returns base64(iv ‖ ciphertext ‖ tag). */

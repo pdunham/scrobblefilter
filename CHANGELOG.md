@@ -59,6 +59,13 @@ The project does not use versioned releases, so entries are grouped by date.
   redirect_uri always matches the pinned client-metadata document regardless of
   which of the Cloud Run hostnames served the request. Falls back to the
   request-derived host when unset (local/dev/tests).
+- **Bluesky: tolerate a trailing newline in `CRED_ENC_KEY`.** A key created via
+  `… | base64 | gcloud secrets create` carries a trailing `\n` that the strict
+  base64 decoder rejected, which surfaced as a silent "bluesky callback failed:
+  Input byte array has incorrect ending byte at 44" after a successful OAuth
+  exchange (the failure was in credential encryption, not the OAuth flow).
+  `CredentialCrypto` now trims the key; the README key-creation command adds
+  `tr -d '\n'`.
 
 ## 2026-06-05
 
