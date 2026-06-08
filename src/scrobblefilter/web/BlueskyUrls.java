@@ -23,7 +23,12 @@ public final class BlueskyUrls {
 	}
 
 	public static String clientId(HttpServletRequest req) {
-		return baseUrl(req) + "/hello/client-metadata.json";
+		// In production, BLUESKY_CLIENT_ID pins the client_id to the hosted
+		// client-metadata URL so the connect flow and the cron refresh (which reads
+		// the same env in BlueskyPoster) present an identical client_id to the
+		// authorization server. Falls back to the request-derived URL for local/dev.
+		String configured = System.getenv("BLUESKY_CLIENT_ID");
+		return (configured != null && !configured.isEmpty()) ? configured : baseUrl(req) + "/hello/client-metadata.json";
 	}
 
 	public static String redirectUri(HttpServletRequest req) {

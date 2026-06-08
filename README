@@ -126,6 +126,45 @@ If `cron-token` is rotated, re-run the `create` command above as
 `gcloud scheduler jobs update http sendalltweets ... --headers=...` to refresh
 the stored header.
 
+### Bluesky (AT Protocol) configuration
+
+Users can connect a Bluesky account (AT Protocol OAuth) and have the same weekly
+summary posted there, in addition to or instead of Twitter. Two pieces of config
+are required on the Cloud Run service:
+
+- **`CRED_ENC_KEY`** — base64 of a 32-byte AES key used to encrypt each user's
+  Bluesky refresh token + DPoP key at rest (`CredentialCrypto`). Stored in Secret
+  Manager. A missing key does not break boot or the Twitter path — it only fails
+  Bluesky use (the holder is lazy), but Bluesky won't work without it.
+- **`BLUESKY_CLIENT_ID`** — the public HTTPS URL of the client-metadata document,
+  which the app serves at `…/hello/client-metadata.json`. It must equal that URL
+  so the OAuth authorization server can fetch it, and it pins the `client_id` used
+  by both the connect flow and the weekly token refresh.
+
+One-time setup (mirrors the admin/cron secrets):
+
+    # 32-byte AES key, base64
+    head -c 32 /dev/urandom | base64 | gcloud secrets create cred-enc-key --data-file=-
+
+    SVC_URL=$(gcloud run services describe scrobblefilter --region=us-central1 --format='value(status.url)')
+    printf '%s/hello/client-metadata.json' "$SVC_URL" | gcloud secrets create bluesky-client-id --data-file=-
+
+    gcloud run deploy scrobblefilter \
+      --image us-central1-docker.pkg.dev/scrobblefilter/scrobblefilter/app:latest \
+      --region us-central1 \
+      --update-secrets CRED_ENC_KEY=cred-enc-key:latest,BLUESKY_CLIENT_ID=bluesky-client-id:latest \
+      --quiet
+
+Notes:
+- Rotating `cred-enc-key` makes previously stored Bluesky credentials
+  undecryptable — affected users simply re-connect. Twitter is unaffected.
+- The client-metadata document is generated from the request (public client,
+  `token_endpoint_auth_method=none`, `dpop_bound_access_tokens=true`); no static
+  file to host.
+- `BLUESKY_HANDLE_RESOLVER_URL` / `BLUESKY_PLC_DIRECTORY_URL` override the identity
+  resolution entry points and are only set in tests (to point at a mock); leave
+  them unset in production to use the public Bluesky / PLC services.
+
 ### Data migration (one-time, only when the entity schema changes)
 
 `/hello/admin/migrate` re-keys legacy entities and is idempotent. It is gated

@@ -30,20 +30,31 @@ Browser → HelloController → NetworkedScrobbleListFetcher → Last.fm API (7-
                                     + filtered artist list removed
 ```
 
-**Cron job flow (weekly tweet):**
+**Cron job flow (weekly post, multi-platform):**
 ```
 Cloud Scheduler job `sendalltweets` (us-central1, Tue 10:00 America/Chicago)
 → GET /hello/cron/sendalltweets (gated by CRON_TOKEN via X-Cron-Token header)
-→ TweeterCronJob → CronUserFetcher (all users with cron=true)
-→ ScrobbleTweeter.doTweet() → builds tweet string → Twitter4J → posts status
+→ SocialPostCronJob → CronUserFetcher (users with cron OR blueskyCron = true)
+→ StatusComposer builds the summary once per user
+→ each enabled SocialPoster (TwitterPoster, BlueskyPoster) posts it
 ```
-Note: GAE's `cron.xml` does **not** fire under Cloud Run, so the schedule is a
-Cloud Scheduler job that calls the cron endpoint (see the README deploy runbook).
+Posting goes through a **`SocialPoster`** abstraction (`platform` / `isConnected` /
+`isEnabledFor` / `post`); Twitter and Bluesky are implementations, and the cron
+loop fans out to every target a user has connected + opted into. Manual posting
+(`/hello/post?platform=…`) uses the same posters. Note: GAE's `cron.xml` does
+**not** fire under Cloud Run, so the schedule is a Cloud Scheduler job that calls
+the cron endpoint (see the README deploy runbook).
+
+**Bluesky (AT Protocol):** connect flow is OAuth (PKCE + PAR + DPoP) in
+`web/BlueskySignInController` using the `net/bluesky/` client; per-user refresh
+token + DPoP key are encrypted (`util/CredentialCrypto`) and stored on `User`.
 
 **Key source packages under `src/scrobblefilter/`:**
-- `web/` — Spring MVC controllers (`HelloController`, `RegistrationController`, `TwitterSignInController`, `TweeterController`, `MigrationController`), `TweeterCronJob`, and `AdminAuth` (token gating)
-- `net/` — External API calls (`net/impl/NetworkedScrobbleListFetcher`, `ScrobbleListParser`, `ScrobbleTweeter`, `OAuth1Helper`)
-- `model/` — Datastore-backed entities: `User`, `FilteredArtist`, `Preferences`, `ScrobbledArtist`, plus `DatastoreProvider`
+- `web/` — Spring MVC controllers (`HelloController`, `RegistrationController`, `TwitterSignInController`, `BlueskySignInController`, `BlueskyMetadataController`, `SocialPostController`, `MigrationController`), `SocialPostCronJob`, and `AdminAuth` (token gating)
+- `net/` — posting abstraction (`SocialPoster`, `StatusComposer`, `TwitterPoster`) + Last.fm (`net/impl/NetworkedScrobbleListFetcher`, `ScrobbleListParser`, `OAuth1Helper`)
+- `net/bluesky/` — AT Protocol OAuth client (`BlueskyResolver`, `BlueskyOAuthClient`, `DpopProofFactory`, `DpopKeys`, `Pkce`, …) and `BlueskyPoster`
+- `util/` — `CredentialCrypto` (AES-256-GCM) + `CredentialCryptoProvider`
+- `model/` — Datastore-backed entities: `User` (incl. Bluesky fields), `FilteredArtist`, `Preferences`, `ScrobbledArtist`, plus `DatastoreProvider`
 - `das/` — Datastore access (`UserFetcher` + `das/impl/` implementations including `CronUserFetcher`)
 
 **Web config:** `war/WEB-INF/scrobblefilter-servlet.xml` defines the Spring beans; `war/WEB-INF/web.xml` maps servlets. Privileged endpoints (`/hello/admin/*`, `/hello/cron/*`) are gated in-app by `AdminAuth` checking a token against an injected secret — GAE's role-based `<security-constraint>` no longer applies on Cloud Run.
@@ -53,11 +64,12 @@ Cloud Scheduler job that calls the cron endpoint (see the README deploy runbook)
 - **Last.fm API key** is read via `AppConfig` (`lastfm.api.key`); the Last.fm base URL is overridable with the `LASTFM_BASE_URL` env var (used to point at a mock in tests).
 - **Twitter OAuth consumer key/secret** are in `twitter4j.properties`, baked onto the classpath (`WEB-INF/classes/`) at build time (not committed). Moving this to Secret Manager is a roadmap item.
 - **Per-user Twitter access tokens** are stored in Cloud Datastore on the `User` entity (which is keyed on `lastfmName`, so identity is platform-independent).
+- **Per-user Bluesky credentials** (refresh token + DPoP key) are stored on `User` **encrypted** via `CredentialCrypto`; the AES key is `CRED_ENC_KEY` (Secret Manager). `BLUESKY_CLIENT_ID` pins the OAuth client-metadata URL. See the README "Bluesky (AT Protocol) configuration" section.
 - **Admin/cron secrets** (`MIGRATE_TOKEN`, `CRON_TOKEN`) live in Google Secret Manager and are injected as env vars on the Cloud Run service.
 - Cloud project / region / service: `scrobblefilter` / `us-central1` / `scrobblefilter`.
 
 ## Constraints
 
-- Tweet construction is hardcoded for exactly 3 artists (`ScrobbleTweeter.constructTweet`).
+- Post construction is hardcoded for exactly 3 artists (`StatusComposer.constructStatus`).
 - Last.fm period is hardcoded to 7 days (`period=7day` in the API call).
 - Views are scriptlet JSPs with no auto-escaping layer — values rendered into URLs must be explicitly encoded (e.g. `URLEncoder.encode`).

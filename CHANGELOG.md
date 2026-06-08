@@ -43,7 +43,16 @@ The project does not use versioned releases, so entries are grouped by date.
   disabled-checkbox-plus-true/false-button control. The Twitter weekly toggle sits
   next to the Twitter account module. Registration is simplified to just the
   Last.fm username — the optional Twitter-handle field is removed (Twitter is
-  linked later via OAuth).
+  linked later via OAuth). Each weekly toggle is shown but **greyed out
+  (disabled)** until that platform is linked.
+- **Bluesky support, Phase 8 — config & docs.** Pin the OAuth `client_id` to the
+  `BLUESKY_CLIENT_ID` env var when set (falling back to the request-derived URL)
+  so the connect flow and the weekly token refresh present an identical
+  `client_id`. Document the Bluesky deploy config in the `README` (`CRED_ENC_KEY`
+  + `BLUESKY_CLIENT_ID` Secret Manager setup, client-metadata hosting, the
+  `BLUESKY_*` test overrides), refresh `CLAUDE.md` for the `SocialPoster` /
+  multi-platform architecture, and move Bluesky to "Recently shipped" in the
+  roadmap.
 
 ## 2026-06-05
 
