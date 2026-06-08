@@ -7,7 +7,7 @@
 <%@page import="java.net.URLEncoder"%>
 <html>
 <head>
-<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css">
+<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=2">
 <title>Hello, World</title>
 </head>
 
@@ -52,6 +52,11 @@ post to bluesky weekly
 <% } else { %>
 you have linked your twitter account &mdash; <a href="logout">log out</a>
 <% } %>
+<form method=post action=updateCronSetting class=toggle-row>
+<label class="switch"><input type="checkbox" name="cron" value="true" <%= user.isCron()?"checked":"" %> onchange="this.form.submit()"><span class="slider"></span></label>
+post to twitter weekly
+<noscript><input type=submit value="save"></noscript>
+</form>
 <P>Your lastfm name is <%=user.getLastfmName()%>
 <form method=post action=addartist>
 <input type=hidden name=lastfmName value="<%=user.getLastfmName()%>"/>
@@ -59,11 +64,6 @@ you have linked your twitter account &mdash; <a href="logout">log out</a>
 <tr><td>add an artist to filter</td><td><input type=text name=artist></td></tr>
 </table>
 <input type=submit>
-</form>
-<form method=post action=updateCronSetting class=toggle-row>
-<label class="switch"><input type="checkbox" name="cron" value="true" <%= user.isCron()?"checked":"" %> onchange="this.form.submit()"><span class="slider"></span></label>
-post to twitter weekly
-<noscript><input type=submit value="save"></noscript>
 </form>
 <table>
 <%
