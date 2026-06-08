@@ -33,6 +33,15 @@ String greetingName = user==null ? "" : (user.getTwitterName() != null ? user.ge
 <% String authError = (model != null) ? (String)model.get("authError") : null; %>
 <% if (authError != null) { %><P style="color:red"><%= authError %></P><% } %>
 Hello<%= user==null?"":", "+greetingName%>
+<% if (user.getBlueskyHandle()==null) { %>
+<P>You have not linked your Bluesky account.
+<form method=get action=bluesky/signin>
+<input type=text name=handle placeholder="you.bsky.social">
+<input type=submit value="connect bluesky">
+</form>
+<% } else { %>
+<P>You have linked your Bluesky account &mdash; @<%=user.getBlueskyHandle()%>
+<% } %>
 <% if (user.getToken()==null) { %>
 <P>You have not linked your twitter account.  <a href="twittersignin?lastfmName=<%=user.getLastfmName()%>">do it</a>
 <% } else { %>

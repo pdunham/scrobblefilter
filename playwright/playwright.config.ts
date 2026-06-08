@@ -20,6 +20,12 @@ export default defineConfig({
       port: 9090,
       reuseExistingServer: true,
     },
+    // 1b. AT Protocol mock — identity resolution + OAuth (PAR/authorize/token)
+    {
+      command: 'node atproto-mock-server.js',
+      port: 9091,
+      reuseExistingServer: true,
+    },
     // 2. Cloud Datastore emulator — replaces real Datastore during tests
     //    Prerequisite: gcloud SDK installed with the datastore emulator component
     //    --consistency=1.0 makes all queries strongly consistent (matches modern
@@ -44,6 +50,9 @@ export default defineConfig({
         '-e GOOGLE_CLOUD_PROJECT=scrobblefilter',
         // Test-only AES-256 key (base64 32 bytes) for CredentialCrypto; never used in prod.
         '-e CRED_ENC_KEY=JfDfFR5fa0QxCKSTR8S8JJonXCQPRdXTG/5G+dqYHs4=',
+        // Point AT Protocol resolution at the mock (app reaches host via host.docker.internal).
+        '-e BLUESKY_HANDLE_RESOLVER_URL=http://host.docker.internal:9091',
+        '-e BLUESKY_PLC_DIRECTORY_URL=http://host.docker.internal:9091',
         'scrobblefilter',
       ].join(' '),
       // Use url (not port) so Playwright waits for the app to be fully

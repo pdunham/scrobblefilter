@@ -64,6 +64,15 @@ The project does not use versioned releases, so entries are grouped by date.
   `scrobblefilter-e2e` container) and runs with `reuseExistingServer:false`, so the
   suite always exercises current code instead of silently reusing a stale
   container left on `:8080`.
+- **Bluesky support, Phase 4f — connect flow.** Add `BlueskySignInController`:
+  `/hello/bluesky/signin` resolves the handle, mints a per-account DPoP key + PKCE
+  + state, pushes the authorization request, and redirects to the authorization
+  server; `/hello/bluesky/callback` exchanges the code and persists the **encrypted**
+  DPoP key + refresh token (and DID/handle) on the `User`. OAuth state is held in
+  the session between legs. `client_id`/`redirect_uri` derive from the request
+  (`BlueskyUrls`). Dashboard shows a connect-Bluesky form / linked-handle status.
+  E2e: a mock AT Protocol authorization server + PDS (`atproto-mock-server.js`)
+  drives a full connect round-trip (`BLUESKY_*` env points the app at it).
 
 ## 2026-06-04
 

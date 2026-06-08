@@ -34,9 +34,10 @@ test('filtered artist is excluded from the list', async ({ page }) => {
   const lastfm = uniqueLastfm();
   await setupUser(page, uniqueHandle(), lastfm);
 
-  // Add Radiohead to the filter via the dashboard
+  // Add Radiohead to the filter via the dashboard (target the add-artist form's
+  // submit specifically; the dashboard has other forms such as connect Bluesky).
   await page.fill('input[name="artist"]', 'Radiohead');
-  await page.click('input[type="submit"]');
+  await page.click('form[action="addartist"] input[type="submit"]');
 
   await page.goto(`/hello/filter?lastfmName=${lastfm}`);
 
