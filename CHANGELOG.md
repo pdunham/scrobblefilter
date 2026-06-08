@@ -53,6 +53,12 @@ The project does not use versioned releases, so entries are grouped by date.
   `BLUESKY_*` test overrides), refresh `CLAUDE.md` for the `SocialPoster` /
   multi-platform architecture, and move Bluesky to "Recently shipped" in the
   roadmap.
+- **Bluesky: anchor the redirect_uri to the configured origin.** When
+  `BLUESKY_CLIENT_ID` is set, derive the OAuth base (client_id, client_uri, and
+  redirect_uri) from that URL's origin rather than the request host, so the
+  redirect_uri always matches the pinned client-metadata document regardless of
+  which of the Cloud Run hostnames served the request. Falls back to the
+  request-derived host when unset (local/dev/tests).
 
 ## 2026-06-05
 
