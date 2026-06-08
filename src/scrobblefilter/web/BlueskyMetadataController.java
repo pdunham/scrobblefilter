@@ -3,7 +3,6 @@ package scrobblefilter.web;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,12 +30,12 @@ public class BlueskyMetadataController {
 
 	@RequestMapping(value = "client-metadata.json", method = GET)
 	public void clientMetadata(HttpServletRequest req, HttpServletResponse res) throws IOException {
-		String base = baseUrl(req);
+		String base = BlueskyUrls.baseUrl(req);
 		Map<String, Object> doc = new LinkedHashMap<>();
-		doc.put("client_id", base + "/hello/client-metadata.json");
+		doc.put("client_id", BlueskyUrls.clientId(req));
 		doc.put("client_name", "ScrobbleFilter");
 		doc.put("client_uri", base);
-		doc.put("redirect_uris", Arrays.asList(base + "/hello/bluesky/callback"));
+		doc.put("redirect_uris", Arrays.asList(BlueskyUrls.redirectUri(req)));
 		doc.put("grant_types", Arrays.asList("authorization_code", "refresh_token"));
 		doc.put("response_types", Arrays.asList("code"));
 		doc.put("scope", BlueskyOAuthClient.SCOPE);
@@ -47,13 +46,5 @@ public class BlueskyMetadataController {
 		res.setContentType("application/json");
 		res.setCharacterEncoding("UTF-8");
 		mapper.writeValue(res.getWriter(), doc);
-	}
-
-	/** Scheme+authority of this deployment, honouring X-Forwarded-Proto (Cloud Run terminates TLS). */
-	private static String baseUrl(HttpServletRequest req) {
-		String forwardedProto = req.getHeader("X-Forwarded-Proto");
-		String scheme = (forwardedProto != null && !forwardedProto.isEmpty()) ? forwardedProto : req.getScheme();
-		String authority = URI.create(req.getRequestURL().toString()).getAuthority();
-		return scheme + "://" + authority;
 	}
 }
