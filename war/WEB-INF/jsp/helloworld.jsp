@@ -25,14 +25,14 @@ if (model != null) {
 		return;
 	}
 }
-String greetingName = user==null ? "" : (user.getTwitterName() != null ? user.getTwitterName() : user.getLastfmName());
+String greetingName = user==null ? "" : user.getLastfmName();
 %>
 
 <body>
 <div id=main>
 <% String authError = (model != null) ? (String)model.get("authError") : null; %>
 <% if (authError != null) { %><P style="color:red"><%= authError %></P><% } %>
-Hello<%= user==null?"":", "+greetingName%>
+Hello<%= user==null?"":", "+greetingName%><% if (user!=null) { %> &mdash; <a href="logout">log out</a><% } %>
 <% boolean blueskyLinked = user.getBlueskyHandle()!=null; %>
 <% if (!blueskyLinked) { %>
 <P>You have not linked your Bluesky account.
@@ -52,7 +52,7 @@ post to bluesky weekly
 <% if (!twitterLinked) { %>
 <P>You have not linked your twitter account.  <a href="twittersignin?lastfmName=<%=user.getLastfmName()%>">do it</a>
 <% } else { %>
-you have linked your twitter account &mdash; <a href="logout">log out</a>
+you have linked your twitter account<% if (user.getTwitterName()!=null) { %> &mdash; @<%=user.getTwitterName()%><% } %>
 <% } %>
 <form method=post action=updateCronSetting class="toggle-row<%= twitterLinked?"":" disabled" %>">
 <label class="switch"><input type="checkbox" name="cron" value="true" <%= user.isCron()?"checked":"" %> <%= twitterLinked?"":"disabled" %> onchange="this.form.submit()"><span class="slider"></span></label>
