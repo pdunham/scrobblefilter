@@ -11,7 +11,6 @@ function uniqueLastfm(): string {
 async function setupUser(page: any, handle: string, lastfm: string) {
   await page.goto('/hello/welcome');
   await page.fill('input[name="lastfmName"]', lastfm);
-  await page.fill('input[name="name"]', handle);
   await page.click('input[type="submit"]');
   // Now on dashboard with add-artist form visible
 }
@@ -71,17 +70,15 @@ test('adding multiple artists shows all of them in the table', async ({ page }) 
   await expect(table).toContainText('Massive Attack');
 });
 
-test('cron toggle changes cron state on the dashboard', async ({ page }) => {
+test('weekly-post toggles are disabled until the account is linked', async ({ page }) => {
   await setupUser(page, uniqueHandle(), uniqueLastfm());
 
-  // New user has cron=false; checkbox should be unchecked
-  await expect(page.locator('input[type="checkbox"]')).not.toBeChecked();
-
-  // Submit button has value="true" — clicking it enables cron
-  await page.click('input[name="cron"]');
-
-  // After enabling, checkbox should be checked
-  await expect(page.locator('input[type="checkbox"]')).toBeChecked();
+  // A brand-new user has neither Twitter nor Bluesky linked, so both weekly
+  // toggles are present but greyed out (disabled) and off.
+  await expect(page.locator('input[name="cron"]')).toBeDisabled();
+  await expect(page.locator('input[name="cron"]')).not.toBeChecked();
+  await expect(page.locator('input[name="blueskyCron"]')).toBeDisabled();
+  await expect(page.locator('input[name="blueskyCron"]')).not.toBeChecked();
 });
 
 test('filtered list link is visible after registration', async ({ page }) => {

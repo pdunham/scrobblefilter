@@ -11,7 +11,6 @@ test('weekly cron fans out a post to Bluesky for an opted-in connected user', as
   // Register + connect Bluesky (mock OAuth).
   await page.goto('/hello/welcome');
   await page.fill('input[name="lastfmName"]', uniqueLastfm());
-  await page.fill('input[name="name"]', 'cronbsky');
   await page.click('input[type="submit"]');
 
   await page.goto('/hello/bluesky/signin?handle=alice.test');

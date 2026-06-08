@@ -21,7 +21,6 @@ Tell me your Last.fm username to get started. You can link a Twitter account lat
 <form method=post action=/hello/register>
 <table>
 <tr><td>Last.fm username</td><td><input type=text name=lastfmName required></td></tr>
-<tr><td>Twitter handle (optional)</td><td><input type=text name=name></td></tr>
 </table>
 <input type=submit>
 </form>

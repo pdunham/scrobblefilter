@@ -32,6 +32,18 @@ The project does not use versioned releases, so entries are grouped by date.
   cron now posts a user's weekly summary to every enabled + connected target.
   E2e: connect → opt in → trigger the cron endpoint → assert the mock PDS received
   a `com.atproto.repo.createRecord` for an `app.bsky.feed.post`.
+- **Bluesky support, Phase 7 — per-platform manual posting.** Generalize the manual
+  "post now" action to any connected platform: a `GET /hello/post?platform=…`
+  endpoint posts to that platform's connected account regardless of the cron opt-in
+  (the Twitter-only `tweet` endpoint stays as a back-compat alias). The filtered-list
+  page now offers "post to twitter" / "post to bluesky" links for whichever accounts
+  are linked, and its error wording is platform-neutral. E2e covers a manual Bluesky
+  post via the filtered-list link. The weekly-post settings (Twitter and Bluesky)
+  are now real toggle switches that flip the setting on change, replacing the
+  disabled-checkbox-plus-true/false-button control. The Twitter weekly toggle sits
+  next to the Twitter account module. Registration is simplified to just the
+  Last.fm username — the optional Twitter-handle field is removed (Twitter is
+  linked later via OAuth).
 
 ## 2026-06-05
 

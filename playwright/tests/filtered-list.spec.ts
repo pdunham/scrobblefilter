@@ -16,7 +16,6 @@ function uniqueLastfm(): string {
 async function setupUser(page: any, handle: string, lastfm: string): Promise<void> {
   await page.goto('/hello/welcome');
   await page.fill('input[name="lastfmName"]', lastfm);
-  await page.fill('input[name="name"]', handle);
   await page.click('input[type="submit"]');
 }
 
