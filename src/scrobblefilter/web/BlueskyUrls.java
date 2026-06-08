@@ -16,10 +16,24 @@ public final class BlueskyUrls {
 	}
 
 	public static String baseUrl(HttpServletRequest req) {
+		// When BLUESKY_CLIENT_ID is configured, anchor the base to its origin so the
+		// client_id and redirect_uri are identical no matter which of the service's
+		// hostnames served this request — otherwise the redirect_uri would vary by
+		// host and fail to match the (pinned) client-metadata document.
+		String configured = System.getenv("BLUESKY_CLIENT_ID");
+		if (configured != null && !configured.isEmpty()) {
+			return originOf(configured);
+		}
 		String forwardedProto = req.getHeader("X-Forwarded-Proto");
 		String scheme = (forwardedProto != null && !forwardedProto.isEmpty()) ? forwardedProto : req.getScheme();
 		String authority = URI.create(req.getRequestURL().toString()).getAuthority();
 		return scheme + "://" + authority;
+	}
+
+	/** scheme://authority of a URL (drops any path), e.g. https://host of https://host/x. */
+	static String originOf(String url) {
+		URI u = URI.create(url);
+		return u.getScheme() + "://" + u.getAuthority();
 	}
 
 	public static String clientId(HttpServletRequest req) {
