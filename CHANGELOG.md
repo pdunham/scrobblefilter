@@ -73,6 +73,14 @@ The project does not use versioned releases, so entries are grouped by date.
   (`BlueskyUrls`). Dashboard shows a connect-Bluesky form / linked-handle status.
   E2e: a mock AT Protocol authorization server + PDS (`atproto-mock-server.js`)
   drives a full connect round-trip (`BLUESKY_*` env points the app at it).
+- **Bluesky support, Phase 5 — `BlueskyPoster`.** A `SocialPoster` for Bluesky:
+  decrypt the stored DPoP key + refresh token, re-resolve the account, refresh for
+  a DPoP-bound access token (rotated refresh token is re-encrypted and persisted),
+  then `com.atproto.repo.createRecord` an `app.bsky.feed.post` — DPoP proof on the
+  resource call (with `ath`) and a `DPoP-Nonce` retry. New `JsonPoster` seam
+  (`JdkJsonPoster`) for the JSON resource POST; `client_id` for refresh comes from
+  `BLUESKY_CLIENT_ID`. Unit-tested (refresh + createRecord + rotation persistence,
+  ath binding, nonce-retry, error, enablement). Not yet wired into the fan-out.
 
 ## 2026-06-04
 
