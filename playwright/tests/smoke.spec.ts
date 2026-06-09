@@ -8,6 +8,7 @@ test('root redirects to welcome page', async ({ page }) => {
 test('welcome page renders registration form', async ({ page }) => {
   await page.goto('/hello/welcome');
   await expect(page.locator('input[name="lastfmName"]')).toBeVisible();
+  await expect(page.locator('input[name="password"]')).toBeVisible();
   await expect(page.locator('input[type="submit"]')).toBeVisible();
   await expect(page.locator('body')).toContainText('Last.fm username');
 });

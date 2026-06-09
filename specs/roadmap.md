@@ -22,6 +22,11 @@
   manual per-platform posting too. Per-user Bluesky credentials are **encrypted at
   rest** (`CredentialCrypto`, key from `CRED_ENC_KEY`). See the README for the
   `CRED_ENC_KEY` / `BLUESKY_CLIENT_ID` setup.
+- Shipped **account passwords (authentication)** — login now requires a Last.fm
+  name + a ScrobbleFilter password (PBKDF2 + per-user salt + Secret-Manager
+  pepper), closing the session-takeover gap and two IDOR holes (`addartist`,
+  `filter`). Existing accounts claim a password on first login. Design in
+  [account-password.md](account-password.md); recovery is the follow-on below.
 
 ---
 
@@ -29,29 +34,6 @@
 
 These finish the Cloud Run migration and harden what already exists.
 
-- **Add a ScrobbleFilter account password (authentication).** *Security gap —
-  highest priority.* Registration/login is by Last.fm name alone: anyone who
-  enters an existing user's Last.fm name gets that user's session and can toggle
-  their weekly posting, add/remove filtered artists, and **force a post to their
-  linked Twitter/Bluesky accounts**. (The attacker can't authenticate *as* them on
-  Twitter/Bluesky, but they can drive ScrobbleFilter's controls — including
-  triggering real posts to the victim's accounts.) Fix:
-  - Add a per-user app password set at first registration; store only a salted
-    hash (e.g. bcrypt/PBKDF2 via a vendored or JDK-available KDF) on the `User`
-    entity — never the plaintext.
-  - On return, require Last.fm name **+ password**; only establish the session
-    (`request.getSession().setAttribute("user", …)`) on a verified match.
-    Constant-time hash comparison.
-  - Decide migration for existing password-less users (e.g. set-a-password
-    prompt on next login) and a reset path (low priority for a small user base).
-  - Consider gating state-changing endpoints (`updateCronSetting`,
-    `updateBlueskyCronSetting`, `addartist`, `removeartist`, `post`, `tweet`) on
-    the authenticated session — they already read the session user, so the win is
-    making the session itself trustworthy.
-  - Note: HTTP sessions are in-memory and fragile across Cloud Run instances
-    (see tech-debt below); a real auth story may also want a shared session store
-    or stateless tokens.
-  - Full design: [account-password.md](account-password.md).
 - **Account recovery via email reset link.** Follow-on to the password work
   (which intentionally ships without recovery — forgotten passwords are an
   admin-only reset until this lands). Scope:

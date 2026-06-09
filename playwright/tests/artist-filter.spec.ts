@@ -11,6 +11,7 @@ function uniqueLastfm(): string {
 async function setupUser(page: any, handle: string, lastfm: string) {
   await page.goto('/hello/welcome');
   await page.fill('input[name="lastfmName"]', lastfm);
+  await page.fill('input[name="password"]', 'test-pass-123');
   await page.click('input[type="submit"]');
   // Now on dashboard with add-artist form visible
 }

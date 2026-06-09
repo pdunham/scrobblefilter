@@ -50,6 +50,8 @@ export default defineConfig({
         '-e GOOGLE_CLOUD_PROJECT=scrobblefilter',
         // Test-only AES-256 key (base64 32 bytes) for CredentialCrypto; never used in prod.
         '-e CRED_ENC_KEY=JfDfFR5fa0QxCKSTR8S8JJonXCQPRdXTG/5G+dqYHs4=',
+        // Test-only pepper for account-password hashing.
+        '-e PASSWORD_PEPPER=test-password-pepper',
         // Point AT Protocol resolution at the mock (app reaches host via host.docker.internal).
         '-e BLUESKY_HANDLE_RESOLVER_URL=http://host.docker.internal:9091',
         '-e BLUESKY_PLC_DIRECTORY_URL=http://host.docker.internal:9091',

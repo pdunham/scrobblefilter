@@ -10,7 +10,9 @@ import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,11 +25,15 @@ import scrobblefilter.model.DatastoreProvider;
 import scrobblefilter.model.FilteredArtist;
 import scrobblefilter.model.Preferences;
 import scrobblefilter.model.User;
+import scrobblefilter.util.PasswordHasher;
 
 @Controller
 public class RegistrationController {
 
 	private static final Logger log = Logger.getLogger(RegistrationController.class.getName());
+
+	@Autowired
+	private PasswordHasher passwordHasher;
 
 	@RequestMapping(value="welcome", method = GET)
 	public ModelAndView helloWorld(HttpServletRequest request, HttpServletResponse response)
@@ -45,17 +51,39 @@ public class RegistrationController {
 	@RequestMapping(value="register", method=POST)
 	public ModelAndView welcomeUser(HttpServletRequest request, HttpServletResponse response, User user, BindingResult result, Map<String, Object> model)
 	{
-		if (user.getLastfmName() == null || user.getLastfmName().isEmpty()) {
+		String lastfmName = user.getLastfmName();
+		String password = request.getParameter("password");
+		if (lastfmName == null || lastfmName.isEmpty()) {
 			model.put("error", "A Last.fm username is required to register.");
 			return new ModelAndView("newuser", "model", model);
 		}
-		user = findOrCreateUser(user);
-		if (user == null) {
-			model.put("error", "A Last.fm username is required to register.");
+		if (password == null || password.isEmpty()) {
+			model.put("error", "A password is required.");
 			return new ModelAndView("newuser", "model", model);
 		}
-		request.getSession().setAttribute("user", user);
-		model.put("user", user);
+
+		User account = findUser(lastfmName);
+		if (account == null) {
+			// New account: the entered password becomes its password.
+			account = new User();
+			account.setLastfmName(lastfmName);
+			account.setPasswordHash(passwordHasher.hash(password));
+			account.save();
+		} else if (!account.hasPassword()) {
+			// Legacy account with no password yet — claim it on this first login.
+			account.setPasswordHash(passwordHasher.hash(password));
+			account.save();
+		} else if (!passwordHasher.verify(password, account.getPasswordHash())) {
+			// Generic message: don't reveal whether the account exists.
+			model.put("error", "That Last.fm name and password don't match.");
+			return new ModelAndView("newuser", "model", model);
+		}
+
+		// Establish a fresh session (drop any prior one) to avoid session fixation.
+		HttpSession existing = request.getSession(false);
+		if (existing != null) existing.invalidate();
+		request.getSession(true).setAttribute("user", account);
+		model.put("user", account);
 		return new ModelAndView("helloworld", "model", model);
 	}
 
@@ -87,21 +115,6 @@ public class RegistrationController {
 		return new ModelAndView("helloworld", "model", model);
 	}
 
-	protected static User findOrCreateUser(User user) {
-		if (user.getLastfmName() == null || user.getLastfmName().isEmpty()) {
-			return null;
-		}
-		User maybeUser = User.findByLastfmName(user.getLastfmName());
-		if (maybeUser == null) {
-			user.save();
-			log.fine("saved " + user.getLastfmName());
-		} else {
-			user = maybeUser;
-			log.fine("found " + user.getLastfmName());
-		}
-		return user;
-	}
-
 	protected static User findUser(String lastfmName) {
 		return User.findByLastfmName(lastfmName);
 	}
@@ -109,8 +122,10 @@ public class RegistrationController {
 @RequestMapping(value="addartist", method={POST,GET})
 	public ModelAndView addArtistToFilter(HttpServletRequest request, HttpServletResponse response, Preferences prefs, BindingResult result, Map<String, Object> model)
 	{
-		User user = findUser(prefs.getLastfmName());
-		if (user == null) return new ModelAndView("newuser");
+		// Identity comes from the authenticated session, not a request parameter —
+		// otherwise anyone could add artists to any account by posting a lastfmName.
+		User user = (User) request.getSession().getAttribute("user");
+		if (user == null) return new ModelAndView("redirect:/hello/welcome");
 		FilteredArtist artist = new FilteredArtist(user.getLastfmName(), prefs.getArtist());
 		user.addFilteredArtist(artist);
 		model.put("user", user);

@@ -165,6 +165,37 @@ Notes:
   resolution entry points and are only set in tests (to point at a mock); leave
   them unset in production to use the public Bluesky / PLC services.
 
+### Account password
+
+Login requires a Last.fm name **+ a ScrobbleFilter password**. Passwords are
+stored only as a salted PBKDF2-HMAC-SHA256 hash on the `User` entity, with an
+app-wide **pepper** mixed in so a Datastore-only leak can't be brute-forced.
+
+- **`PASSWORD_PEPPER`** — a secret string (any high-entropy value) in Secret
+  Manager, injected as an env var. Required for login/registration; a missing
+  value fails auth (not boot).
+
+One-time setup (mirrors the other secrets):
+
+    head -c 32 /dev/urandom | base64 | tr -d '\n' | gcloud secrets create password-pepper --data-file=-
+    # grant the Cloud Run runtime SA accessor on it:
+    SA=$(gcloud run services describe scrobblefilter --region=us-central1 --format='value(spec.template.spec.serviceAccountName)')
+    gcloud secrets add-iam-policy-binding password-pepper --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor
+    gcloud run deploy scrobblefilter \
+      --image us-central1-docker.pkg.dev/scrobblefilter/scrobblefilter/app:latest \
+      --region us-central1 \
+      --update-secrets PASSWORD_PEPPER=password-pepper:latest \
+      --quiet
+
+Notes:
+- **Existing accounts claim their password on first login** after this ships: an
+  account with no stored hash sets its password the first time someone logs in
+  with that Last.fm name. Log in promptly to claim known accounts; there's a
+  window until then. Rotating `password-pepper` invalidates all stored hashes
+  (everyone re-claims) — treat it as permanent.
+- No self-serve reset yet (no email on file); reset is manual via the console.
+  Email + reset-link recovery is a roadmap item.
+
 ### Data migration (one-time, only when the entity schema changes)
 
 `/hello/admin/migrate` re-keys legacy entities and is idempotent. It is gated

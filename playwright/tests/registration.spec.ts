@@ -4,9 +4,12 @@ function uniqueLastfm(): string {
   return `lastfm_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 }
 
-async function register(page: any, lastfmName: string) {
+const PASSWORD = 'test-pass-123';
+
+async function register(page: any, lastfmName: string, password: string = PASSWORD) {
   await page.goto('/hello/welcome');
   await page.fill('input[name="lastfmName"]', lastfmName);
+  await page.fill('input[name="password"]', password);
   await page.click('input[type="submit"]');
 }
 
