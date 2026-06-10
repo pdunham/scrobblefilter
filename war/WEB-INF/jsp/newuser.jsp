@@ -16,11 +16,14 @@ String error = (model != null) ? (String)model.get("error") : null;
 <div id=main>
 Hello
 <P>
-Tell me your Last.fm username to get started. You can link a Twitter account later.
+Enter your Last.fm username and a ScrobbleFilter password. New here? This sets
+your password. Returning? Enter the one you chose. You can link Twitter or
+Bluesky later.
 <% if (error != null) { %><P style="color:red"><%= error %></P><% } %>
 <form method=post action=/hello/register>
 <table>
 <tr><td>Last.fm username</td><td><input type=text name=lastfmName required></td></tr>
+<tr><td>ScrobbleFilter password</td><td><input type=password name=password required></td></tr>
 </table>
 <input type=submit>
 </form>

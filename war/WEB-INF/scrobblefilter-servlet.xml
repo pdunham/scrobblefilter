@@ -33,6 +33,9 @@
 	     must not break app boot or the Twitter path (Bluesky is opt-in). -->
 	<bean id="credentialCryptoProvider" class="scrobblefilter.util.CredentialCryptoProvider"/>
 
+	<!-- Account password hashing (reads PASSWORD_PEPPER lazily, at first login). -->
+	<bean id="passwordHasher" class="scrobblefilter.util.PasswordHasher"/>
+
 	<!-- AT Protocol OAuth collaborators for the Bluesky connect flow. -->
 	<bean id="blueskyResolver" class="scrobblefilter.net.bluesky.BlueskyResolver"/>
 	<bean id="formPoster" class="scrobblefilter.net.bluesky.JdkFormPoster"/>

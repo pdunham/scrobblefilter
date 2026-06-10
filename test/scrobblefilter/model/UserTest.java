@@ -103,4 +103,25 @@ public class UserTest {
 		assertEquals("enc-dpop-blob", u.getBlueskyDpopKeyEnc());
 		assertTrue(u.isBlueskyCron());
 	}
+
+	@Test
+	public void emptyPasswordHashCoercesToNull() {
+		User u = User.fromEntity(userEntity().set("passwordHash", "").build());
+		assertNull(u.getPasswordHash());
+		assertFalse(u.hasPassword());
+	}
+
+	@Test
+	public void absentPasswordHashIsNull() {
+		User u = User.fromEntity(userEntity().build());
+		assertNull(u.getPasswordHash());
+		assertFalse(u.hasPassword());
+	}
+
+	@Test
+	public void presentPasswordHashIsPreserved() {
+		User u = User.fromEntity(userEntity().set("passwordHash", "pbkdf2$210000$c2FsdA$aGFzaA").build());
+		assertEquals("pbkdf2$210000$c2FsdA$aGFzaA", u.getPasswordHash());
+		assertTrue(u.hasPassword());
+	}
 }

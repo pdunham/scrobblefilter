@@ -4,6 +4,21 @@ All notable changes to ScrobbleFilter on the `master` branch, summarized by
 date. Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 The project does not use versioned releases, so entries are grouped by date.
 
+## 2026-06-09
+
+- **Account password (authentication).** Login now requires a Last.fm name **+ a
+  ScrobbleFilter password**, closing the gap where entering any existing Last.fm
+  name granted that user's session. New `PasswordHasher` (PBKDF2-HMAC-SHA256, per-
+  user salt, app-wide pepper from `PASSWORD_PEPPER`); the hash is stored on `User`
+  (`pbkdf2$iters$salt$hash`, unindexed). `register` handles new accounts, the
+  legacy claim-on-first-login, and verify-on-return (generic error, fresh session
+  on success to avoid fixation). Closed two IDOR holes: `addArtistToFilter` and the
+  `filter` GET now identify by the authenticated **session** user instead of a
+  request `lastfmName`. New `PasswordHasherTest`, `UserTest` cases, and
+  `auth.spec.ts` (register / login / wrong-password / no-session / addartist IDOR).
+  Requires the `PASSWORD_PEPPER` secret (see README); existing accounts claim a
+  password on first login. Full design in `specs/account-password.md`.
+
 ## 2026-06-08
 
 - **Bluesky support, Phase 4f — connect flow.** Add `BlueskySignInController`:

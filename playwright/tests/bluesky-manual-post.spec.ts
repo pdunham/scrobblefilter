@@ -10,6 +10,7 @@ test('"post to bluesky" on the filtered list posts immediately', async ({ page, 
   const lastfm = uniqueLastfm();
   await page.goto('/hello/welcome');
   await page.fill('input[name="lastfmName"]', lastfm);
+  await page.fill('input[name="password"]', 'test-pass-123');
   await page.click('input[type="submit"]');
 
   // Connect Bluesky (mock OAuth). Note: no cron opt-in — manual posting ignores it.

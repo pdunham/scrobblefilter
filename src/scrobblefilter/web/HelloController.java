@@ -63,9 +63,11 @@ public class HelloController {
 	@RequestMapping(value="filter", method=GET)
 	public ModelAndView retrieveFilteredList(HttpServletRequest request, HttpServletResponse response, User user, BindingResult result, Map<String, Object> model)
 	{
-		if (user.getLastfmName() == null) user = (User)request.getSession().getAttribute("user");
-		if (user == null || user.getLastfmName() == null) return new ModelAndView("redirect:/hello/welcome");
-		user = RegistrationController.findUser(user.getLastfmName());
+		// Identity comes from the authenticated session, not the request param,
+		// so a ?lastfmName= can't be used to view another user's filtered list.
+		User sessionUser = (User) request.getSession().getAttribute("user");
+		if (sessionUser == null || sessionUser.getLastfmName() == null) return new ModelAndView("redirect:/hello/welcome");
+		user = RegistrationController.findUser(sessionUser.getLastfmName());
 		if (user == null) return new ModelAndView("redirect:/hello/welcome");
 		List<String> filteredArtistsAsStrings = user.getFilteredArtistAsStrings();
 		Preferences prefs = new Preferences();
