@@ -42,6 +42,7 @@ Hello<%= user==null?"":", "+greetingName%><% if (user!=null) { %> &mdash; <a hre
 </form>
 <% } else { %>
 <P>You have linked your Bluesky account &mdash; @<%=user.getBlueskyHandle()%>
+&nbsp;<a href="bluesky/signin?handle=<%=URLEncoder.encode(user.getBlueskyHandle(), "UTF-8")%>">reconnect</a>
 <% } %>
 <form method=post action=updateBlueskyCronSetting class="toggle-row<%= blueskyLinked?"":" disabled" %>">
 <label class="switch"><input type="checkbox" name="blueskyCron" value="true" <%= user.isBlueskyCron()?"checked":"" %> <%= blueskyLinked?"":"disabled" %> onchange="this.form.submit()"><span class="slider"></span></label>
