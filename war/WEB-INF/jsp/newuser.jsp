@@ -3,7 +3,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=4">
+<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=5">
 <title>Welcome to ScrobbleFilter!</title>
 </head>
 

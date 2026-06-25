@@ -13,26 +13,21 @@ String greetingName = prefs==null ? "" : (prefs.getTwitterName() != null && !pre
 %>
 <html>
 <head>
-<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=4">
+<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=5">
 <title>Hello, <%=greetingName%></title>
-<style>
-.error {
-color: #D8000C;
-}
-</style>
 </head>
 
-<body>
+<body class="app-page">
+<div class="app-header"><a class="brand" href="world">Scrobble<span class="filter">Filter</span></a></div>
 <div id=main>
-Hello, <%=greetingName%>!
-<br>
-<a href="world">go back</a>
-<br>
+<h1>Hello, <%=greetingName%>!</h1>
+<p><a href="world">&larr; back to dashboard</a></p>
 <% if (model!=null && model.get("error")!=null) { %>
-	<div class=error>The post failed: <%=model.get("error")%>
+	<div class="error">The post failed: <%=model.get("error")%>
 	<br><a href="world">back to your dashboard to re-link an account</a>
 	</div>
 <% } %>
+<h2>Your top artists this week</h2>
 <table>
 <tr><th>name</th><th>play count</th><th></th></tr>
 <% for (ScrobbledArtist artist : topArtists) { %>
@@ -53,17 +48,19 @@ Hello, <%=greetingName%>!
 	</tr>
 <% } %>
 </table>
-<p>Post this now:
+<h2>Post this now</h2>
+<p>
 <% if (user != null && user.getToken() != null) { %>
 <a href="post?platform=twitter">post to twitter</a>
 <% } %>
 <% if (user != null && user.getBlueskyHandle() != null) { %>
+<% if (user.getToken() != null) { %>&nbsp;&middot;&nbsp;<% } %>
 <a href="post?platform=bluesky">post to bluesky</a>
 <% } %>
 <% if (user == null || (user.getToken() == null && user.getBlueskyHandle() == null)) { %>
-<span>link a Twitter or Bluesky account on your <a href="world">dashboard</a> to post.</span>
+<span>Link a Twitter or Bluesky account on your <a href="world">dashboard</a> to post.</span>
 <% } %>
 </p>
-</body>
 </div> <!-- main -->
+</body>
 </html>

@@ -12,10 +12,11 @@ List<String> orphansDeleted = (List<String>)model.get("orphansDeleted");
 %>
 <html>
 <head>
-<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=4">
+<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=5">
 <title>ScrobbleFilter migration</title>
 </head>
-<body>
+<body class="app-page">
+<div class="app-header"><a class="brand" href="/hello/world">Scrobble<span class="filter">Filter</span></a></div>
 <div id=main>
 <h1>Migration summary</h1>
 <P>Users migrated (fresh): <%= model.get("migratedCount") %> (<%= model.get("migratedArtistCount") %> artists)</P>

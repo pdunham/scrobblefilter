@@ -73,6 +73,153 @@
   line-height: 1.5;
 }
 
+/** --- App pages (dashboard, filtered list, admin) ---
+ *  Same visual language as the login page: dark gradient backdrop, a white
+ *  rounded card, the ScrobbleFilter wordmark, and red accents. Scoped under
+ *  .app-page so none of this touches the login page (.login-page). */
+.app-page {
+  margin: 0;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 32px 16px;
+  background: linear-gradient(135deg, #1e1e2f 0%, #3a2d44 60%, #d51007 220%);
+  background-attachment: fixed;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #2b2b3a;
+}
+.app-header {
+  max-width: 640px;
+  margin: 0 auto 18px;
+  text-align: center;
+}
+.app-header .brand {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  text-decoration: none;
+  color: #fff;
+}
+.app-header .brand .filter {
+  color: #ff5a4d;
+}
+.app-page #main {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.30);
+  padding: 26px 30px;
+  line-height: 1.55;
+}
+.app-page #main h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e1e2f;
+  text-align: left;
+  margin: 0 0 16px;
+}
+.app-page #main h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e1e2f;
+  margin: 22px 0 10px;
+}
+.app-page #main p {
+  margin: 12px 0;
+}
+.app-page a {
+  color: #c20d04;
+  text-decoration: none;
+  font-weight: 600;
+}
+.app-page a:hover {
+  text-decoration: underline;
+}
+.app-page #main form {
+  margin: 12px 0;
+}
+.app-page input[type=text] {
+  padding: 8px 11px;
+  border: 1px solid #d2d2de;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+.app-page input[type=text]:focus {
+  outline: none;
+  border-color: #d51007;
+  box-shadow: 0 0 0 3px rgba(213, 16, 7, 0.15);
+}
+.app-page input[type=submit],
+.app-page button {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #d51007;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.app-page input[type=submit]:hover,
+.app-page button:hover {
+  background: #b80d06;
+}
+/* A horizontal label + field + action row (e.g. add-an-artist). */
+.app-page .field-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.app-page .field-row label {
+  font-weight: 600;
+  color: #4a4a5a;
+}
+/* Data tables (filtered artists, top artists). */
+.app-page table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 14px 0;
+}
+.app-page th {
+  text-align: left;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #8a8a9a;
+  border-bottom: 2px solid #ececf2;
+  padding: 8px 10px;
+}
+.app-page td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0f0f5;
+  vertical-align: middle;
+}
+/* Compact submit buttons inside table rows (e.g. "filter this artist"). */
+.app-page td input[type=submit] {
+  padding: 5px 12px;
+  font-size: 13px;
+}
+.app-page .error {
+  color: #d8000c;
+  background: #fff0f0;
+  border: 1px solid #ffd2d2;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 14px 0;
+  font-weight: 500;
+}
+.app-page ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
 /** Example rules used by the template application (remove for your app) */
 h1 {
   font-size: 2em;
