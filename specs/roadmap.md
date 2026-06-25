@@ -22,11 +22,13 @@
   manual per-platform posting too. Per-user Bluesky credentials are **encrypted at
   rest** (`CredentialCrypto`, key from `CRED_ENC_KEY`). See the README for the
   `CRED_ENC_KEY` / `BLUESKY_CLIENT_ID` setup.
-- Shipped **account passwords (authentication)** — login now requires a Last.fm
-  name + a ScrobbleFilter password (PBKDF2 + per-user salt + Secret-Manager
-  pepper), closing the session-takeover gap and two IDOR holes (`addartist`,
-  `filter`). Existing accounts claim a password on first login. Design in
-  [account-password.md](account-password.md); recovery is the follow-on below.
+- Shipped **authentication via Last.fm Web Auth** — login is now delegated to
+  Last.fm's OAuth flow (`lastfm/signin` → Last.fm → `lastfm/callback`, identity
+  confirmed server-side via `auth.getSession`), closing the session-takeover gap
+  and two IDOR holes (`addartist`, `filter`). This **replaced** the short-lived
+  ScrobbleFilter-password scheme (PBKDF2 + pepper): no passwords are stored or
+  handled, so there's nothing to reset and the email-recovery follow-on is moot.
+  Design in [lastfmauth.md](lastfmauth.md).
 
 ---
 
@@ -34,26 +36,10 @@
 
 These finish the Cloud Run migration and harden what already exists.
 
-- **Account recovery via email reset link.** Follow-on to the password work
-  (which intentionally ships without recovery — forgotten passwords are an
-  admin-only reset until this lands). Scope:
-  - Capture an **email** on the `User` and **verify** it (confirmation link), so
-    the address is trustworthy before it can reset a password. Existing accounts
-    are prompted to add/verify an email on next login.
-  - **Reset flow:** a "forgot password" page emails a link carrying a **signed,
-    single-use, short-TTL token** (HMAC over `lastfmName + expiry + a hash of the
-    current password hash`, so the link self-invalidates once used or the password
-    changes — keyed by a Secret Manager secret, no token table needed). The link
-    lands on a set-new-password page.
-  - **Email provider: SendGrid.** Chosen because it's a plain HTTPS+JSON v3 API
-    (`POST https://api.sendgrid.com/v3/mail/send` with a Bearer key) — fits the
-    project's hand-rolled `java.net.http` + Jackson clients with **no new SDK/dep**,
-    has a free tier sufficient for this app, and the API key stores in Secret
-    Manager exactly like `CRON_TOKEN` / `CRED_ENC_KEY`. (Amazon SES or Mailgun are
-    drop-in alternatives if SendGrid's free tier or sender verification becomes a
-    problem; GCP has no first-party transactional email.) A `SENDGRID_BASE_URL`
-    env override (à la `LASTFM_BASE_URL`) lets the e2e point at a mock.
-  - Likely its own phase after the password phase merges.
+- ~~**Account recovery via email reset link.**~~ **Dropped** — recovery was a
+  follow-on to the ScrobbleFilter-password scheme, which has since been replaced
+  by Last.fm Web Auth (see Recently shipped). With no password to forget, there's
+  nothing to recover; account access is recovered through Last.fm itself.
 - **Move `twitter4j.properties` to Secret Manager.** OAuth consumer secrets are
   currently baked into the image. Mount them from Secret Manager (volume or env)
   so no credentials live in the container. (Aligns with mission principle 4.)

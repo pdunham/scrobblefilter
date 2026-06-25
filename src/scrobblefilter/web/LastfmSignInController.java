@@ -2,13 +2,15 @@ package scrobblefilter.web;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.Duration;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Logger;
@@ -52,6 +54,10 @@ public class LastfmSignInController {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
+	private static final HttpClient HTTP = HttpClient.newBuilder()
+			.connectTimeout(Duration.ofSeconds(5))
+			.build();
+
 	@RequestMapping(value = "welcome", method = GET)
 	public ModelAndView welcome() {
 		return new ModelAndView("newuser");
@@ -86,17 +92,7 @@ public class LastfmSignInController {
 					+ "&token=" + enc(token)
 					+ "&api_sig=" + sig
 					+ "&format=json";
-			String body = fetch(url);
-
-			JsonNode root = MAPPER.readValue(body, JsonNode.class);
-			JsonNode sessionNode = root.get("session");
-			if (sessionNode == null) {
-				throw new IOException("auth.getSession missing session: " + body);
-			}
-			String lastfmName = sessionNode.get("name").asText();
-			if (lastfmName == null || lastfmName.isEmpty()) {
-				throw new IOException("auth.getSession returned empty name: " + body);
-			}
+			String lastfmName = extractSessionName(fetch(url));
 
 			User user = RegistrationController.findUser(lastfmName);
 			if (user == null) {
@@ -110,6 +106,7 @@ public class LastfmSignInController {
 			req.getSession(true).setAttribute("user", user);
 			return new ModelAndView("redirect:/hello/world");
 		} catch (Exception e) {
+			if (e instanceof InterruptedException) Thread.currentThread().interrupt();
 			log.warning("Last.fm callback failed: " + e.getMessage());
 			return new ModelAndView("redirect:/hello/welcome");
 		}
@@ -126,7 +123,26 @@ public class LastfmSignInController {
 		return url.toString();
 	}
 
-	private static String apiSig(Map<String, String> params, String secret) {
+	/**
+	 * Parses an auth.getSession response and returns the Last.fm username.
+	 * Error messages deliberately omit the response body, which can carry the
+	 * session key. Package-private so it can be unit-tested without a live call.
+	 */
+	static String extractSessionName(String body) throws IOException {
+		JsonNode root = MAPPER.readValue(body, JsonNode.class);
+		JsonNode sessionNode = root.get("session");
+		if (sessionNode == null) {
+			throw new IOException("auth.getSession returned no session");
+		}
+		JsonNode nameNode = sessionNode.get("name");
+		String name = nameNode != null ? nameNode.asText() : null;
+		if (name == null || name.isEmpty()) {
+			throw new IOException("auth.getSession returned no session name");
+		}
+		return name;
+	}
+
+	static String apiSig(Map<String, String> params, String secret) {
 		StringBuilder sb = new StringBuilder();
 		new TreeMap<>(params).forEach((k, v) -> sb.append(k).append(v));
 		sb.append(secret);
@@ -141,13 +157,16 @@ public class LastfmSignInController {
 		}
 	}
 
-	private static String fetch(String url) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		try (BufferedReader r = new BufferedReader(new InputStreamReader(URI.create(url).toURL().openStream()))) {
-			String line;
-			while ((line = r.readLine()) != null) sb.append(line);
+	private static String fetch(String url) throws IOException, InterruptedException {
+		HttpRequest request = HttpRequest.newBuilder(URI.create(url))
+				.timeout(Duration.ofSeconds(5))
+				.GET()
+				.build();
+		HttpResponse<String> resp = HTTP.send(request, HttpResponse.BodyHandlers.ofString());
+		if (resp.statusCode() != 200) {
+			throw new IOException("auth.getSession HTTP " + resp.statusCode());
 		}
-		return sb.toString();
+		return resp.body();
 	}
 
 	private static String apiSecret() {
