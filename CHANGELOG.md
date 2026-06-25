@@ -24,6 +24,12 @@ The project does not use versioned releases, so entries are grouped by date.
   button; styles are scoped under `.login-page` and the shared `ScrobbleFilter.css`
   link is cache-busted (`?v=4`) across all JSPs so the new styles take effect for
   returning visitors.
+- **App-wide styling.** Extend the login page's look to the dashboard, filtered
+  list, and admin pages: dark gradient backdrop, white rounded card, ScrobbleFilter
+  wordmark header, red accent buttons/links, and cleaner data tables (all scoped
+  under `.app-page`). The dashboard groups settings under Bluesky / Twitter /
+  Filtered-artists headings. CSS bumped to `?v=5`. The Last.fm mock also gained an
+  `/auth/` redirect handler so the sign-in button works in local manual testing.
 
 ## 2026-06-09
 

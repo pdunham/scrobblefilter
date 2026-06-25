@@ -36,6 +36,26 @@ http.createServer((req, res) => {
     return;
   }
 
+  // Browser-facing Web Auth page: mint a token for a (default) user and
+  // redirect back to the app's callback, mimicking Last.fm's redirect. This
+  // lets the "Sign in with Last.fm" button work in local manual testing; the
+  // e2e tests bypass this and drive the callback directly (see helpers.ts).
+  if (url.pathname === '/auth/' || url.pathname === '/auth') {
+    const cb = url.searchParams.get('cb');
+    if (!cb) {
+      res.writeHead(400);
+      res.end('missing cb');
+      return;
+    }
+    const username = url.searchParams.get('username') || 'musicfan';
+    const token = `tok-${++tokenCounter}`;
+    tokenStore.set(token, username);
+    const sep = cb.includes('?') ? '&' : '?';
+    res.writeHead(302, { Location: `${cb}${sep}token=${token}` });
+    res.end();
+    return;
+  }
+
   // auth.getSession: look up the token and return the Last.fm session.
   if (url.searchParams.get('method') === 'auth.getSession') {
     const token = url.searchParams.get('token');
