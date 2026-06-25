@@ -7,7 +7,7 @@
 <%@page import="java.net.URLEncoder"%>
 <html>
 <head>
-<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=5">
+<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=6">
 <title>Hello, World</title>
 </head>
 
@@ -37,8 +37,8 @@ String greetingName = user==null ? "" : user.getLastfmName();
 <% if (user!=null) { %><p><a href="logout">Log out</a></p><% } %>
 
 <h2>Bluesky</h2>
-<% boolean blueskyLinked = user.getBlueskyHandle()!=null; %>
-<% if (!blueskyLinked) { %>
+<% boolean blueskyHasAccount = user.getBlueskyHandle()!=null; %>
+<% if (!blueskyHasAccount) { %>
 <p>You have not linked your Bluesky account.</p>
 <form method=get action=bluesky/signin>
 <div class="field-row">
@@ -46,12 +46,14 @@ String greetingName = user==null ? "" : user.getLastfmName();
 <input type=submit value="connect bluesky">
 </div>
 </form>
-<% } else { %>
-<p>You have linked your Bluesky account &mdash; @<%=user.getBlueskyHandle()%>
+<% } else if (user.isBlueskyReconnectNeeded()) { %>
+<p class="needs-reconnect">Your Bluesky session for @<%=user.getBlueskyHandle()%> has expired.
 &nbsp;<a href="bluesky/signin?handle=<%=URLEncoder.encode(user.getBlueskyHandle(), "UTF-8")%>">reconnect</a></p>
+<% } else { %>
+<p>You have linked your Bluesky account &mdash; @<%=user.getBlueskyHandle()%></p>
 <% } %>
-<form method=post action=updateBlueskyCronSetting class="toggle-row<%= blueskyLinked?"":" disabled" %>">
-<label class="switch"><input type="checkbox" name="blueskyCron" value="true" <%= user.isBlueskyCron()?"checked":"" %> <%= blueskyLinked?"":"disabled" %> onchange="this.form.submit()"><span class="slider"></span></label>
+<form method=post action=updateBlueskyCronSetting class="toggle-row<%= blueskyHasAccount?"":" disabled" %>">
+<label class="switch"><input type="checkbox" name="blueskyCron" value="true" <%= user.isBlueskyCron()?"checked":"" %> <%= blueskyHasAccount?"":"disabled" %> onchange="this.form.submit()"><span class="slider"></span></label>
 post to bluesky weekly
 <noscript><input type=submit value="save"></noscript>
 </form>

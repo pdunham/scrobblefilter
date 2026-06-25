@@ -193,6 +193,37 @@ public class User {
 		this.blueskyCron = blueskyCron;
 	}
 
+	/**
+	 * True when Bluesky posting can actually work: handle, did, refresh token,
+	 * and DPoP key are all present. A handle alone is not enough — once a session
+	 * expires the credentials are cleared but the handle is kept for reconnect, so
+	 * UI and posting must key off this, not {@link #getBlueskyHandle()}.
+	 */
+	public boolean isBlueskyConnected() {
+		return notEmpty(blueskyHandle) && notEmpty(blueskyDid)
+				&& notEmpty(blueskyRefreshTokenEnc) && notEmpty(blueskyDpopKeyEnc);
+	}
+
+	/** A Bluesky account was linked but its session has expired (needs reconnect). */
+	public boolean isBlueskyReconnectNeeded() {
+		return notEmpty(blueskyHandle) && !isBlueskyConnected();
+	}
+
+	/**
+	 * Drop the secret Bluesky credentials after the session has permanently
+	 * expired, keeping the handle/did so the user can reconnect. The weekly-post
+	 * opt-in (blueskyCron) is intentionally preserved so posting resumes
+	 * automatically once they reconnect.
+	 */
+	public void clearBlueskyCredentials() {
+		this.blueskyRefreshTokenEnc = null;
+		this.blueskyDpopKeyEnc = null;
+	}
+
+	private static boolean notEmpty(String s) {
+		return s != null && !s.isEmpty();
+	}
+
 	public String getPreface() {
 		return preface;
 	}
