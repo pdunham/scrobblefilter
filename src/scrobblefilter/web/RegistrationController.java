@@ -10,9 +10,7 @@ import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,66 +23,16 @@ import scrobblefilter.model.DatastoreProvider;
 import scrobblefilter.model.FilteredArtist;
 import scrobblefilter.model.Preferences;
 import scrobblefilter.model.User;
-import scrobblefilter.util.PasswordHasher;
-
 @Controller
 public class RegistrationController {
 
 	private static final Logger log = Logger.getLogger(RegistrationController.class.getName());
-
-	@Autowired
-	private PasswordHasher passwordHasher;
-
-	@RequestMapping(value="welcome", method = GET)
-	public ModelAndView helloWorld(HttpServletRequest request, HttpServletResponse response)
-	{
-		return new ModelAndView("newuser");
-	}
 
 	@RequestMapping(value="logout", method = GET)
 	public ModelAndView logout(HttpServletRequest request, HttpServletResponse response)
 	{
 		request.getSession().invalidate();
 		return new ModelAndView("redirect:/hello/welcome");
-	}
-
-	@RequestMapping(value="register", method=POST)
-	public ModelAndView welcomeUser(HttpServletRequest request, HttpServletResponse response, User user, BindingResult result, Map<String, Object> model)
-	{
-		String lastfmName = user.getLastfmName();
-		String password = request.getParameter("password");
-		if (lastfmName == null || lastfmName.isEmpty()) {
-			model.put("error", "A Last.fm username is required to register.");
-			return new ModelAndView("newuser", "model", model);
-		}
-		if (password == null || password.isEmpty()) {
-			model.put("error", "A password is required.");
-			return new ModelAndView("newuser", "model", model);
-		}
-
-		User account = findUser(lastfmName);
-		if (account == null) {
-			// New account: the entered password becomes its password.
-			account = new User();
-			account.setLastfmName(lastfmName);
-			account.setPasswordHash(passwordHasher.hash(password));
-			account.save();
-		} else if (!account.hasPassword()) {
-			// Legacy account with no password yet — claim it on this first login.
-			account.setPasswordHash(passwordHasher.hash(password));
-			account.save();
-		} else if (!passwordHasher.verify(password, account.getPasswordHash())) {
-			// Generic message: don't reveal whether the account exists.
-			model.put("error", "That Last.fm name and password don't match.");
-			return new ModelAndView("newuser", "model", model);
-		}
-
-		// Establish a fresh session (drop any prior one) to avoid session fixation.
-		HttpSession existing = request.getSession(false);
-		if (existing != null) existing.invalidate();
-		request.getSession(true).setAttribute("user", account);
-		model.put("user", account);
-		return new ModelAndView("helloworld", "model", model);
 	}
 
 	@RequestMapping(value="updateCronSetting", method=POST)

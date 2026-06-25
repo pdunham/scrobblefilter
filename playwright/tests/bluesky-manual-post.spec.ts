@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { oauthLogin } from './helpers';
 
 const MOCK = 'http://localhost:9091';
 
@@ -8,10 +9,7 @@ function uniqueLastfm(): string {
 
 test('"post to bluesky" on the filtered list posts immediately', async ({ page, request }) => {
   const lastfm = uniqueLastfm();
-  await page.goto('/hello/welcome');
-  await page.fill('input[name="lastfmName"]', lastfm);
-  await page.fill('input[name="password"]', 'test-pass-123');
-  await page.click('input[type="submit"]');
+  await oauthLogin(page, request, lastfm);
 
   // Connect Bluesky (mock OAuth). Note: no cron opt-in — manual posting ignores it.
   await page.goto('/hello/bluesky/signin?handle=alice.test');
