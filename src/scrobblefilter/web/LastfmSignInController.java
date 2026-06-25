@@ -164,7 +164,9 @@ public class LastfmSignInController {
 				.build();
 		HttpResponse<String> resp = HTTP.send(request, HttpResponse.BodyHandlers.ofString());
 		if (resp.statusCode() != 200) {
-			throw new IOException("auth.getSession HTTP " + resp.statusCode());
+			// A non-200 from Last.fm is an error payload (error code + message),
+			// never a session key — safe to surface for diagnosis.
+			throw new IOException("auth.getSession HTTP " + resp.statusCode() + ": " + resp.body());
 		}
 		return resp.body();
 	}
