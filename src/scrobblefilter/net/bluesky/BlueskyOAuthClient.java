@@ -90,7 +90,8 @@ public class BlueskyOAuthClient {
 	private TokenSet token(AuthServerMetadata as, ECKey dpopKey, Map<String, String> form) throws IOException {
 		HttpExchange resp = postWithDpop(as.getTokenEndpoint(), dpopKey, form);
 		if (!resp.isSuccess()) {
-			throw new IOException("token request failed (" + resp.status() + "): " + resp.body());
+			throw new BlueskyAuthException(resp.status(), errorCode(resp.body()),
+					"token request failed (" + resp.status() + "): " + resp.body());
 		}
 		JsonNode body = parse(resp.body());
 		String accessToken = text(body, "access_token");
@@ -128,6 +129,15 @@ public class BlueskyOAuthClient {
 
 	private JsonNode parse(String json) throws IOException {
 		return mapper.readValue(json, JsonNode.class);
+	}
+
+	/** Best-effort extraction of the OAuth {@code error} code from a response body. */
+	private String errorCode(String body) {
+		try {
+			return text(parse(body), "error");
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	private static String text(JsonNode node, String field) {

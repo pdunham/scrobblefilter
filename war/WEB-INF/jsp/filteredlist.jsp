@@ -13,7 +13,7 @@ String greetingName = prefs==null ? "" : (prefs.getTwitterName() != null && !pre
 %>
 <html>
 <head>
-<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=5">
+<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=6">
 <title>Hello, <%=greetingName%></title>
 </head>
 
@@ -53,11 +53,11 @@ String greetingName = prefs==null ? "" : (prefs.getTwitterName() != null && !pre
 <% if (user != null && user.getToken() != null) { %>
 <a href="post?platform=twitter">post to twitter</a>
 <% } %>
-<% if (user != null && user.getBlueskyHandle() != null) { %>
+<% if (user != null && user.isBlueskyConnected()) { %>
 <% if (user.getToken() != null) { %>&nbsp;&middot;&nbsp;<% } %>
 <a href="post?platform=bluesky">post to bluesky</a>
 <% } %>
-<% if (user == null || (user.getToken() == null && user.getBlueskyHandle() == null)) { %>
+<% if (user == null || (user.getToken() == null && !user.isBlueskyConnected())) { %>
 <span>Link a Twitter or Bluesky account on your <a href="world">dashboard</a> to post.</span>
 <% } %>
 </p>

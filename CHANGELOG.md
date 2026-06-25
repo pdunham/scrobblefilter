@@ -6,6 +6,15 @@ The project does not use versioned releases, so entries are grouped by date.
 
 ## 2026-06-25
 
+- **Bluesky reconnect on expired sessions.** When a weekly or manual Bluesky post
+  fails because the refresh token has expired (`invalid_grant`), the now-dead
+  credentials are cleared (the handle is kept) so the dashboard stops claiming the
+  account is connected and instead shows a "your Bluesky session expired —
+  reconnect" prompt; the weekly opt-in is preserved so posting resumes after
+  reconnecting. Connection state (dashboard, filtered-list "post to bluesky")
+  keys off `User.isBlueskyConnected()` (real credential presence) rather than the
+  handle alone. Only a genuine `invalid_grant` clears credentials — transient
+  errors leave them intact — via a typed `BlueskyAuthException`.
 - **Authentication via Last.fm Web Auth (replaces ScrobbleFilter passwords).**
   Sign-in is now delegated to Last.fm's OAuth flow: `lastfm/signin` redirects to
   Last.fm with the `api_key` + dynamic `cb`, and `lastfm/callback` exchanges the

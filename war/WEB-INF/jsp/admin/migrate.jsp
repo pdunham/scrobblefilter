@@ -12,7 +12,7 @@ List<String> orphansDeleted = (List<String>)model.get("orphansDeleted");
 %>
 <html>
 <head>
-<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=5">
+<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=6">
 <title>ScrobbleFilter migration</title>
 </head>
 <body class="app-page">

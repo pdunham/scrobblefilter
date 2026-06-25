@@ -45,3 +45,6 @@ lastfmkeyandsecret.txt
 ehthumbs.db
 Icon?
 Thumbs.db
+
+# Playwright MCP browser artifacts (screenshots, snapshots)
+.playwright-mcp/

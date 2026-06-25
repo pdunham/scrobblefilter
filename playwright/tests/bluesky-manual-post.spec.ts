@@ -30,3 +30,35 @@ test('"post to bluesky" on the filtered list posts immediately', async ({ page, 
   expect(lastPost.record['$type']).toBe('app.bsky.feed.post');
   expect(lastPost.record.text).toContain("I've been listening to");
 });
+
+test('an expired Bluesky session clears the connection and prompts reconnect', async ({ page, request }) => {
+  const lastfm = uniqueLastfm();
+  await oauthLogin(page, request, lastfm);
+
+  // Connect a Bluesky account whose session the mock will reject on refresh
+  // (the "expired" marker in the handle), and opt in to weekly posting.
+  await page.goto('/hello/bluesky/signin?handle=expired.test');
+  await expect(page.locator('body')).toContainText('@expired.test');
+  await page.click('input[name="blueskyCron"]');
+  await expect(page.locator('input[name="blueskyCron"]')).toBeChecked();
+  await expect(page.locator('body')).toContainText('You have linked your Bluesky account');
+  await expect(page.locator('.needs-reconnect')).toHaveCount(0);
+
+  // Attempt to post; the refresh is rejected as invalid_grant.
+  await page.goto(`/hello/filter?lastfmName=${lastfm}`);
+  await page.locator('a[href="post?platform=bluesky"]').click();
+  await expect(page).toHaveURL(/\/hello\/filter/);
+  await expect(page.locator('.error')).toHaveCount(1); // the post failed
+
+  // The expired session is now cleared: the dashboard shows a reconnect prompt,
+  // no longer claims the account is connected, and keeps the weekly toggle on.
+  await page.goto('/hello/world');
+  await expect(page.locator('.needs-reconnect')).toContainText('expired');
+  await expect(page.locator('.needs-reconnect')).toContainText('reconnect');
+  await expect(page.locator('body')).not.toContainText('You have linked your Bluesky account');
+  await expect(page.locator('input[name="blueskyCron"]')).toBeChecked();
+
+  // The filtered list no longer offers a doomed "post to bluesky".
+  await page.goto(`/hello/filter?lastfmName=${lastfm}`);
+  await expect(page.locator('a[href="post?platform=bluesky"]')).toHaveCount(0);
+});

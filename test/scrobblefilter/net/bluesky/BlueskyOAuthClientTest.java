@@ -2,6 +2,7 @@ package scrobblefilter.net.bluesky;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -129,13 +130,31 @@ public class BlueskyOAuthClientTest {
 	}
 
 	@Test
-	public void tokenErrorWithoutNonceThrows() {
+	public void tokenErrorThrowsTypedAuthExceptionCarryingErrorCode() throws IOException {
 		ScriptedPoster poster = new ScriptedPoster().queue(
-				resp(400, "{\"error\":\"invalid_grant\"}", Collections.emptyMap()));
+				resp(400, "{\"error\":\"invalid_grant\",\"error_description\":\"Session expired\"}",
+						Collections.emptyMap()));
 		try {
-			client(poster).exchangeCode(AS, key, "bad", "v");
-			fail("expected IOException on token error");
-		} catch (IOException expected) { /* ok */ }
+			client(poster).refresh(AS, key, "dead-refresh");
+			fail("expected BlueskyAuthException on token error");
+		} catch (BlueskyAuthException e) {
+			assertEquals(400, e.status());
+			assertEquals("invalid_grant", e.error());
+			assertTrue("invalid_grant on 400 means a dead session", e.isInvalidGrant());
+		}
+	}
+
+	@Test
+	public void transientTokenErrorIsNotInvalidGrant() throws IOException {
+		ScriptedPoster poster = new ScriptedPoster().queue(
+				resp(500, "{\"error\":\"server_error\"}", Collections.emptyMap()));
+		try {
+			client(poster).refresh(AS, key, "refresh");
+			fail("expected BlueskyAuthException on token error");
+		} catch (BlueskyAuthException e) {
+			assertEquals(500, e.status());
+			org.junit.Assert.assertFalse("a 5xx is transient, not a dead session", e.isInvalidGrant());
+		}
 	}
 
 	private static String nonceClaim(String dpopProof) throws Exception {

@@ -15,13 +15,30 @@ const PORT = 9091;
 const APP_BASE = process.env.ATPROTO_MOCK_APP_BASE || 'http://host.docker.internal:9091';
 const BROWSER_BASE = process.env.ATPROTO_MOCK_BROWSER_BASE || 'http://localhost:9091';
 
-const parStore = {}; // request_uri -> { redirect_uri, state }
+const parStore = {}; // request_uri -> { redirect_uri, state, loginHint }
 let counter = 0;
 let lastPost = null; // most recent createRecord payload (for e2e assertions)
+
+// Test hook: a connected handle containing this marker has its refresh token
+// rejected as invalid_grant, deterministically simulating an expired session.
+// Keyed on the handle (threaded through the code + refresh token) rather than a
+// global flag, so it's isolated under parallel workers sharing this one mock.
+const EXPIRED_MARKER = 'expired';
 
 function json(res, code, obj) {
   res.writeHead(code, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(obj));
+}
+
+// The connecting handle is encoded after a '~' in both the auth code and the
+// refresh token; pull it back out (empty string if absent/malformed).
+function handleFromCode(code) {
+  const i = (code || '').indexOf('~');
+  return i < 0 ? '' : decodeURIComponent(code.slice(i + 1));
+}
+function handleFromRefresh(token) {
+  const i = (token || '').indexOf('~');
+  return i < 0 ? '' : decodeURIComponent(token.slice(i + 1));
 }
 
 const server = http.createServer((req, res) => {
@@ -58,7 +75,11 @@ const server = http.createServer((req, res) => {
     req.on('end', () => {
       const params = new URLSearchParams(body);
       const requestUri = 'urn:mock:par:' + ++counter;
-      parStore[requestUri] = { redirect_uri: params.get('redirect_uri'), state: params.get('state') };
+      parStore[requestUri] = {
+        redirect_uri: params.get('redirect_uri'),
+        state: params.get('state'),
+        loginHint: params.get('login_hint') || '',
+      };
       json(res, 201, { request_uri: requestUri, expires_in: 60 });
     });
     return;
@@ -70,23 +91,42 @@ const server = http.createServer((req, res) => {
       res.writeHead(400);
       return res.end('unknown request_uri');
     }
+    // Carry the connecting handle in the code so the token exchange can mint a
+    // refresh token that remembers which account it belongs to.
+    const code = 'mock-code~' + encodeURIComponent(stored.loginHint || '');
     const loc =
       stored.redirect_uri +
-      '?code=mock-code&state=' + encodeURIComponent(stored.state) +
+      '?code=' + encodeURIComponent(code) + '&state=' + encodeURIComponent(stored.state) +
       '&iss=' + encodeURIComponent(APP_BASE);
     res.writeHead(302, { Location: loc });
     return res.end();
   }
-  // 7. token: issue DPoP-bound tokens (refresh rotates the refresh token).
+  // 7. token: issue DPoP-bound tokens (refresh rotates the refresh token). The
+  // handle is threaded through code → refresh token so a handle marked "expired"
+  // gets its refresh rejected, deterministically simulating an expired session.
   if (path === '/oauth/token' && req.method === 'POST') {
-    return json(res, 200, {
-      access_token: 'mock-access-token',
-      token_type: 'DPoP',
-      refresh_token: 'mock-refresh-token-rotated',
-      sub: 'did:plc:mockuser',
-      scope: 'atproto transition:generic',
-      expires_in: 3600,
+    let body = '';
+    req.on('data', (c) => (body += c));
+    req.on('end', () => {
+      const params = new URLSearchParams(body);
+      const grant = params.get('grant_type');
+      const handle = grant === 'refresh_token'
+        ? handleFromRefresh(params.get('refresh_token'))
+        : handleFromCode(params.get('code'));
+
+      if (grant === 'refresh_token' && handle.includes(EXPIRED_MARKER)) {
+        return json(res, 400, { error: 'invalid_grant', error_description: 'Session expired' });
+      }
+      json(res, 200, {
+        access_token: 'mock-access-token',
+        token_type: 'DPoP',
+        refresh_token: 'mock-refresh~' + encodeURIComponent(handle),
+        sub: 'did:plc:mockuser',
+        scope: 'atproto transition:generic',
+        expires_in: 3600,
+      });
     });
+    return;
   }
   // 8. PDS createRecord: record the post so the e2e can assert it.
   if (path === '/xrpc/com.atproto.repo.createRecord' && req.method === 'POST') {

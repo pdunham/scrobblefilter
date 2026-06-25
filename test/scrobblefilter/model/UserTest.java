@@ -85,6 +85,49 @@ public class UserTest {
 		assertFalse(u.isBlueskyCron());
 	}
 
+	private static User blueskyConnectedUser() {
+		User u = new User();
+		u.setBlueskyHandle("alice.bsky.social");
+		u.setBlueskyDid("did:plc:abc123");
+		u.setBlueskyRefreshTokenEnc("enc-refresh");
+		u.setBlueskyDpopKeyEnc("enc-dpop");
+		u.setBlueskyCron(true);
+		return u;
+	}
+
+	@Test
+	public void isBlueskyConnectedRequiresAllCredentials() {
+		User u = blueskyConnectedUser();
+		assertTrue(u.isBlueskyConnected());
+		assertFalse(u.isBlueskyReconnectNeeded());
+
+		// Missing any one secret means not connected.
+		u.setBlueskyRefreshTokenEnc(null);
+		assertFalse(u.isBlueskyConnected());
+	}
+
+	@Test
+	public void clearBlueskyCredentialsKeepsHandleAndFlagsReconnect() {
+		User u = blueskyConnectedUser();
+
+		u.clearBlueskyCredentials();
+
+		assertNull(u.getBlueskyRefreshTokenEnc());
+		assertNull(u.getBlueskyDpopKeyEnc());
+		assertEquals("alice.bsky.social", u.getBlueskyHandle());
+		assertEquals("did:plc:abc123", u.getBlueskyDid());
+		assertTrue("weekly opt-in is intentionally preserved", u.isBlueskyCron());
+		assertFalse(u.isBlueskyConnected());
+		assertTrue(u.isBlueskyReconnectNeeded());
+	}
+
+	@Test
+	public void noBlueskyHandleIsNeitherConnectedNorReconnect() {
+		User u = new User();
+		assertFalse(u.isBlueskyConnected());
+		assertFalse(u.isBlueskyReconnectNeeded());
+	}
+
 	@Test
 	public void presentBlueskyFieldsArePreserved() {
 		Entity e = userEntity()

@@ -54,8 +54,7 @@ public class BlueskyPoster implements SocialPoster {
 
 	@Override
 	public boolean isConnected(User user) {
-		return notEmpty(user.getBlueskyHandle()) && notEmpty(user.getBlueskyDid())
-				&& notEmpty(user.getBlueskyRefreshTokenEnc()) && notEmpty(user.getBlueskyDpopKeyEnc());
+		return user.isBlueskyConnected();
 	}
 
 	@Override
@@ -85,6 +84,21 @@ public class BlueskyPoster implements SocialPoster {
 
 			createRecord(account.getIdentity().getPdsUrl(), dpopKey, tokens.getAccessToken(),
 					user.getBlueskyDid(), statusText);
+		} catch (BlueskyAuthException e) {
+			// post() only calls the token endpoint via refresh(), so invalid_grant
+			// here means the stored refresh token is permanently dead. Drop the dead
+			// credentials (keeping the handle so the dashboard can offer "reconnect")
+			// and surface a clear message. Transient/other auth errors fall through
+			// and leave the credentials intact.
+			if (e.isInvalidGrant()) {
+				log.warning("bluesky session expired for " + user.getBlueskyHandle()
+						+ "; clearing credentials, reconnect required");
+				user.clearBlueskyCredentials();
+				persist(user);
+				throw new SocialPostException(
+						"bluesky session expired; reconnect your Bluesky account", e);
+			}
+			throw new SocialPostException("bluesky post failed: " + e.getMessage(), e);
 		} catch (SocialPostException e) {
 			throw e;
 		} catch (Exception e) {
@@ -138,10 +152,6 @@ public class BlueskyPoster implements SocialPoster {
 	private static String clientId() {
 		String v = System.getenv("BLUESKY_CLIENT_ID");
 		return v != null ? v : "";
-	}
-
-	private static boolean notEmpty(String s) {
-		return s != null && !s.isEmpty();
 	}
 
 	private static String stripTrailingSlash(String s) {

@@ -168,6 +168,51 @@ public class BlueskyPosterTest {
 	}
 
 	@Test
+	public void invalidGrantOnRefreshClearsCredentialsAndThrows() {
+		// Bluesky rejects the refresh token as invalid_grant: the session is dead.
+		ScriptedForm form = new ScriptedForm().queue(
+				new HttpExchange(400, "{\"error\":\"invalid_grant\",\"error_description\":\"Session expired\"}",
+						Collections.emptyMap()));
+		ScriptedJson json = new ScriptedJson();
+		CapturingPoster poster = new CapturingPoster(resolver(), form, json, new DpopProofFactory(), cryptoProvider);
+
+		User user = connectedUser();
+		try {
+			poster.post(user, "hello");
+			fail("expected SocialPostException");
+		} catch (SocialPostException expected) { /* ok */ }
+
+		// Dead credentials dropped; handle/did kept so the user can reconnect.
+		assertNull(user.getBlueskyRefreshTokenEnc());
+		assertNull(user.getBlueskyDpopKeyEnc());
+		assertEquals("alice.test", user.getBlueskyHandle());
+		assertEquals("did:plc:mock", user.getBlueskyDid());
+		assertTrue("weekly opt-in is preserved across reconnect", user.isBlueskyCron());
+		assertFalse(user.isBlueskyConnected());
+		assertTrue(user.isBlueskyReconnectNeeded());
+		assertNotNull("cleared credentials must be persisted", poster.saved);
+		assertTrue("createRecord must not be attempted after a dead refresh", json.urls.isEmpty());
+	}
+
+	@Test
+	public void transientRefreshFailureLeavesCredentialsIntact() {
+		// A 5xx is transient — it must NOT wipe the user's credentials.
+		ScriptedForm form = new ScriptedForm().queue(
+				new HttpExchange(500, "{\"error\":\"server_error\"}", Collections.emptyMap()));
+		ScriptedJson json = new ScriptedJson();
+		CapturingPoster poster = new CapturingPoster(resolver(), form, json, new DpopProofFactory(), cryptoProvider);
+
+		User user = connectedUser();
+		try {
+			poster.post(user, "hello");
+			fail("expected SocialPostException");
+		} catch (SocialPostException expected) { /* ok */ }
+
+		assertTrue("transient failure keeps the account connected", user.isBlueskyConnected());
+		assertNull("no persist on a transient failure", poster.saved);
+	}
+
+	@Test
 	public void enablementReflectsConnectionAndOptIn() {
 		BlueskyPoster poster = new BlueskyPoster(resolver(), new ScriptedForm(), new ScriptedJson(),
 				new DpopProofFactory(), cryptoProvider);
