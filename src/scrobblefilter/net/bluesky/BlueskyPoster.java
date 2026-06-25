@@ -28,6 +28,8 @@ import scrobblefilter.util.CredentialCryptoProvider;
 public class BlueskyPoster implements SocialPoster {
 
 	private static final String COLLECTION = "app.bsky.feed.post";
+	private static final java.util.logging.Logger log =
+			java.util.logging.Logger.getLogger(BlueskyPoster.class.getName());
 
 	private final BlueskyResolver resolver;
 	private final FormPoster formPoster;
@@ -72,6 +74,8 @@ public class BlueskyPoster implements SocialPoster {
 
 			BlueskyOAuthClient oauth = new BlueskyOAuthClient(formPoster, proofFactory, clientId(), null);
 			TokenSet tokens = oauth.refresh(account.getAuthServer(), dpopKey, refreshToken);
+			log.info("bluesky token refreshed for " + user.getBlueskyHandle()
+					+ ": expires_in=" + tokens.getExpiresInSeconds() + "s");
 
 			// Refresh tokens are single-use; persist the rotated one or the next run fails.
 			if (tokens.getRefreshToken() != null && !tokens.getRefreshToken().equals(refreshToken)) {
