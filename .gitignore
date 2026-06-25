@@ -37,6 +37,7 @@ playwright/test-results/
 # Secrets — never commit
 war/WEB-INF/twitter4j.properties
 twitter_oauth2_secrets.txt
+lastfmkeyandsecret.txt
 
 # OS generated files #
 ######################

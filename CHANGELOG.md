@@ -4,6 +4,27 @@ All notable changes to ScrobbleFilter on the `master` branch, summarized by
 date. Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 The project does not use versioned releases, so entries are grouped by date.
 
+## 2026-06-25
+
+- **Authentication via Last.fm Web Auth (replaces ScrobbleFilter passwords).**
+  Sign-in is now delegated to Last.fm's OAuth flow: `lastfm/signin` redirects to
+  Last.fm with the `api_key` + dynamic `cb`, and `lastfm/callback` exchanges the
+  returned token via a signed `auth.getSession` (MD5 `api_sig`) to confirm
+  identity server-side before creating/loading the `User` and establishing a
+  session. New `LastfmSignInController` (HTTP via `java.net.http.HttpClient` with
+  a 5s timeout; error messages omit the response body so the session key is never
+  logged) and `LastfmSignInControllerTest`. Removed `PasswordHasher`,
+  `PasswordHasherTest`, the `passwordHash` field on `User`, and the registration
+  password handlers. Requires the `LASTFM_API_SECRET` secret (Secret Manager);
+  the `PASSWORD_PEPPER` secret and binding are retired. No password is stored or
+  handled, so the planned email-recovery follow-on is moot. Design in
+  `specs/lastfmauth.md`.
+- **Login page redesign.** The welcome page is now a centered card on a dark
+  gradient with the ScrobbleFilter wordmark and a branded "Sign in with Last.fm"
+  button; styles are scoped under `.login-page` and the shared `ScrobbleFilter.css`
+  link is cache-busted (`?v=4`) across all JSPs so the new styles take effect for
+  returning visitors.
+
 ## 2026-06-09
 
 - **Account password (authentication).** Login now requires a Last.fm name **+ a

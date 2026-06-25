@@ -7,7 +7,7 @@
 <%@page import="java.net.URLEncoder"%>
 <html>
 <head>
-<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=3">
+<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=4">
 <title>Hello, World</title>
 </head>
 
