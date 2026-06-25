@@ -13,7 +13,7 @@ String greetingName = prefs==null ? "" : (prefs.getTwitterName() != null && !pre
 %>
 <html>
 <head>
-<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css">
+<link type="text/css" rel="stylesheet" href="/ScrobbleFilter.css?v=4">
 <title>Hello, <%=greetingName%></title>
 <style>
 .error {
