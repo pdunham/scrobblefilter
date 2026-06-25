@@ -4,25 +4,19 @@
 // which serves playwright/fixtures/lastfm-top-artists.json for every request.
 
 import { test, expect } from '@playwright/test';
-
-function uniqueHandle(): string {
-  return `testuser_${Date.now()}`;
-}
+import { oauthLogin } from './helpers';
 
 function uniqueLastfm(): string {
   return `lastfm_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 }
 
-async function setupUser(page: any, handle: string, lastfm: string): Promise<void> {
-  await page.goto('/hello/welcome');
-  await page.fill('input[name="lastfmName"]', lastfm);
-  await page.fill('input[name="password"]', 'test-pass-123');
-  await page.click('input[type="submit"]');
+async function setupUser(page: any, request: any, lastfm: string): Promise<void> {
+  await oauthLogin(page, request, lastfm);
 }
 
-test('filtered list page shows top artists from the mock', async ({ page }) => {
+test('filtered list page shows top artists from the mock', async ({ page, request }) => {
   const lastfm = uniqueLastfm();
-  await setupUser(page, uniqueHandle(), lastfm);
+  await setupUser(page, request, lastfm);
 
   await page.goto(`/hello/filter?lastfmName=${lastfm}`);
 
@@ -30,9 +24,9 @@ test('filtered list page shows top artists from the mock', async ({ page }) => {
   await expect(page.locator('table')).toContainText('Portishead');
 });
 
-test('filtered artist is excluded from the list', async ({ page }) => {
+test('filtered artist is excluded from the list', async ({ page, request }) => {
   const lastfm = uniqueLastfm();
-  await setupUser(page, uniqueHandle(), lastfm);
+  await setupUser(page, request, lastfm);
 
   // Add Radiohead to the filter via the dashboard (target the add-artist form's
   // submit specifically; the dashboard has other forms such as connect Bluesky).
@@ -46,9 +40,9 @@ test('filtered artist is excluded from the list', async ({ page }) => {
   await expect(page.locator('table')).toContainText('Portishead');
 });
 
-test('"filter this artist" button adds artist and returns to dashboard', async ({ page }) => {
+test('"filter this artist" button adds artist and returns to dashboard', async ({ page, request }) => {
   const lastfm = uniqueLastfm();
-  await setupUser(page, uniqueHandle(), lastfm);
+  await setupUser(page, request, lastfm);
 
   await page.goto(`/hello/filter?lastfmName=${lastfm}`);
 
@@ -60,9 +54,9 @@ test('"filter this artist" button adds artist and returns to dashboard', async (
   await expect(page.locator('table').last()).toContainText('Radiohead');
 });
 
-test('"go back" link navigates to the dashboard', async ({ page }) => {
+test('"go back" link navigates to the dashboard', async ({ page, request }) => {
   const lastfm = uniqueLastfm();
-  await setupUser(page, uniqueHandle(), lastfm);
+  await setupUser(page, request, lastfm);
 
   await page.goto(`/hello/filter?lastfmName=${lastfm}`);
   await page.click('a[href="world"]');

@@ -50,7 +50,7 @@ the cron endpoint (see the README deploy runbook).
 token + DPoP key are encrypted (`util/CredentialCrypto`) and stored on `User`.
 
 **Key source packages under `src/scrobblefilter/`:**
-- `web/` — Spring MVC controllers (`HelloController`, `RegistrationController`, `TwitterSignInController`, `BlueskySignInController`, `BlueskyMetadataController`, `SocialPostController`, `MigrationController`), `SocialPostCronJob`, and `AdminAuth` (token gating)
+- `web/` — Spring MVC controllers (`HelloController`, `LastfmSignInController` (Last.fm Web Auth login), `RegistrationController`, `TwitterSignInController`, `BlueskySignInController`, `BlueskyMetadataController`, `SocialPostController`, `MigrationController`), `SocialPostCronJob`, and `AdminAuth` (token gating)
 - `net/` — posting abstraction (`SocialPoster`, `StatusComposer`, `TwitterPoster`) + Last.fm (`net/impl/NetworkedScrobbleListFetcher`, `ScrobbleListParser`, `OAuth1Helper`)
 - `net/bluesky/` — AT Protocol OAuth client (`BlueskyResolver`, `BlueskyOAuthClient`, `DpopProofFactory`, `DpopKeys`, `Pkce`, …) and `BlueskyPoster`
 - `util/` — `CredentialCrypto` (AES-256-GCM) + `CredentialCryptoProvider`
@@ -62,6 +62,7 @@ token + DPoP key are encrypted (`util/CredentialCrypto`) and stored on `User`.
 ## Credentials & Configuration
 
 - **Last.fm API key** is read via `AppConfig` (`lastfm.api.key`); the Last.fm base URL is overridable with the `LASTFM_BASE_URL` env var (used to point at a mock in tests).
+- **Last.fm shared secret** signs `auth.getSession` during sign-in. Read from `LASTFM_API_SECRET` (Secret Manager) first, falling back to the `lastfm.api.secret` property. The Web Auth page URL is overridable with `LASTFM_AUTH_URL` (points at the mock in tests). Authentication is **delegated to Last.fm** (`LastfmSignInController`) — there is no ScrobbleFilter password.
 - **Twitter OAuth consumer key/secret** are in `twitter4j.properties`, baked onto the classpath (`WEB-INF/classes/`) at build time (not committed). Moving this to Secret Manager is a roadmap item.
 - **Per-user Twitter access tokens** are stored in Cloud Datastore on the `User` entity (which is keyed on `lastfmName`, so identity is platform-independent).
 - **Per-user Bluesky credentials** (refresh token + DPoP key) are stored on `User` **encrypted** via `CredentialCrypto`; the AES key is `CRED_ENC_KEY` (Secret Manager). `BLUESKY_CLIENT_ID` pins the OAuth client-metadata URL. See the README "Bluesky (AT Protocol) configuration" section.

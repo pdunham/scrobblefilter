@@ -25,10 +25,6 @@ public class User {
 	private boolean cron;
 	private String prefixText;
 
-	// ScrobbleFilter account password: PBKDF2 hash string (pbkdf2$iters$salt$hash),
-	// produced by PasswordHasher. Null for legacy accounts (claim on next login).
-	private String passwordHash;
-
 	// Bluesky (AT Protocol). did/handle are non-secret; the refresh token and
 	// DPoP private key are stored encrypted (see CredentialCrypto) and verbatim
 	// here — decryption happens in the poster, not the model.
@@ -53,8 +49,6 @@ public class User {
 		u.useNumbers  = e.contains("useNumbers")  && e.getBoolean("useNumbers");
 		u.isRandom    = e.contains("isRandom")    && e.getBoolean("isRandom");
 		u.cron        = e.contains("cron")        && e.getBoolean("cron");
-		String rawPasswordHash = e.contains("passwordHash") ? e.getString("passwordHash") : null;
-		u.passwordHash = (rawPasswordHash != null && !rawPasswordHash.isEmpty()) ? rawPasswordHash : null;
 		String rawBskyDid = e.contains("blueskyDid") ? e.getString("blueskyDid") : null;
 		u.blueskyDid = (rawBskyDid != null && !rawBskyDid.isEmpty()) ? rawBskyDid : null;
 		String rawBskyHandle = e.contains("blueskyHandle") ? e.getString("blueskyHandle") : null;
@@ -80,9 +74,6 @@ public class User {
 			.set("useNumbers",  useNumbers)
 			.set("isRandom",    isRandom)
 			.set("cron",        cron)
-			// Password hash is never queried — store it unindexed.
-			.set("passwordHash", StringValue.newBuilder(passwordHash != null ? passwordHash : "")
-					.setExcludeFromIndexes(true).build())
 			.set("blueskyDid",    blueskyDid    != null ? blueskyDid    : "")
 			.set("blueskyHandle", blueskyHandle != null ? blueskyHandle : "")
 			// Encrypted credential blobs can exceed Datastore's 1500-byte indexed
@@ -160,19 +151,6 @@ public class User {
 
 	public void setCron(boolean cron) {
 		this.cron = cron;
-	}
-
-	public String getPasswordHash() {
-		return passwordHash;
-	}
-
-	public void setPasswordHash(String passwordHash) {
-		this.passwordHash = passwordHash;
-	}
-
-	/** Whether this account has a ScrobbleFilter password set (false for legacy accounts). */
-	public boolean hasPassword() {
-		return passwordHash != null && !passwordHash.isEmpty();
 	}
 
 	public String getBlueskyDid() {

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { oauthLogin } from './helpers';
 
 const CRON_TOKEN = 'test-cron-token';
 const MOCK = 'http://localhost:9091';
@@ -9,10 +10,7 @@ function uniqueLastfm(): string {
 
 test('weekly cron fans out a post to Bluesky for an opted-in connected user', async ({ page, request }) => {
   // Register + connect Bluesky (mock OAuth).
-  await page.goto('/hello/welcome');
-  await page.fill('input[name="lastfmName"]', uniqueLastfm());
-  await page.fill('input[name="password"]', 'test-pass-123');
-  await page.click('input[type="submit"]');
+  await oauthLogin(page, request, uniqueLastfm());
 
   await page.goto('/hello/bluesky/signin?handle=alice.test');
   await expect(page.locator('body')).toContainText('@alice.test');
